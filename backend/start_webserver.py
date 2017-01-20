@@ -12,17 +12,7 @@ from config import Config
 from config import WebhandlerContext
 
 from webhandler import ApiHandler
-
-webhandlers = [
-	(r"/api", ApiHandler.ApiHandler, {"context": None})
-	#(r"/", MainHandler.MainHandler, {"context": ctx}),
-	#(r"/logout", LogoutHandler.LogoutHandler, {"context": ctx}),
-	#(r"/confirm", ConfirmHandler.ConfirmHandler, {"context": ctx}),
-	#(r"/css/(.*\.css)", tornado.web.StaticFileHandler, {"path": "style"}),
-	#(r"/js/(.*\.js)", tornado.web.StaticFileHandler, {"path": "javascript"}),
-	#(r"/images/(.*)", tornado.web.StaticFileHandler, {'path': "./img"}),
-	#(r"/(favicon.ico)", tornado.web.StaticFileHandler, {"path": "img/favicon"})
-]
+from webhandler import AccessTokenHandler
 
 def start_webserver(config_path, database_path):
 
@@ -41,6 +31,13 @@ def start_webserver(config_path, database_path):
 
 
 def start_tornado(ctx):
+	webhandlers = [
+		(r"/api", ApiHandler.ApiHandler, {"context": ctx}),
+		(r"/api/getAccessToken", AccessTokenHandler.AccessTokenHandler, {"context": ctx}),
+		#(r"/logout", LogoutHandler.LogoutHandler, {"context": ctx}),
+		#(r"/confirm", ConfirmHandler.ConfirmHandler, {"context": ctx}),
+		#(r"/(favicon.ico)", tornado.web.StaticFileHandler, {"path": "img/favicon"})
+	]
 	app = tornado.web.Application(webhandlers)
 	app.listen(
 		ctx.config.tornado["port"],
