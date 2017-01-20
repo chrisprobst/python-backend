@@ -30,10 +30,10 @@ class Database(object):
 			self.cursor.execute(query)
 		result = self.cursor.fetchone()
 		if self.debug:
-			if result == None:
+			if not result:
 				msg = "Query '{query}' with args '{args}' didnt return any value".format(query=query, args=args)
 				self.logger.warning(msg)
-		return result
+		return result[0]
 
 
 if __name__ == "__main__":
