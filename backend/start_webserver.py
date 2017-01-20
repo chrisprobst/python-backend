@@ -28,10 +28,14 @@ def start_webserver(config_path, database_path):
 
 	# TODO: add logging destination path
 	# TODO: check wether config_path is given
-	cfg = Config.Config(config_path)
-	dbs = Database.Database(database_path)
-	rnd = PyStacheRenderer.PyStacheRenderer()
 	log = logging.getLogger("internHHC")
+	cfg = Config.Config(config_path)
+	dbs = Database.Database(
+		database_path,
+		debug=cfg.database_debug,
+		logger=log
+	)
+	rnd = PyStacheRenderer.PyStacheRenderer()
 	ctx = WebhandlerContext.WebhandlerContext(cfg, dbs, rnd, log)
 	start_tornado(ctx)
 

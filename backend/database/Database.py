@@ -2,14 +2,14 @@ import sqlite3
 
 class Database(object):
 
-	def __init__(self, path):
+	def __init__(self, path, debug=False, logger=None):
+		self.debug = debug
+		self.logger = logger
 		self.connection = sqlite3.connect(path)
 		self.cursor = self.connection.cursor()
 		self.createTables()
 
 	def createTables(self):
-		# self.cursor.execute( CREATE ALL TABLES NEEDED )
-		pass
 		self.cursor.execute(
 
 			"""CREATE TABLE IF NOT EXISTS `users` (
