@@ -23,6 +23,19 @@ class Database(object):
 	def commit(self):
 		return self.connection.commit()
 
+	def getSingleValueByQuery(self, query, args=None):
+		if args:
+			self.cursor.execute(query,args)
+		else:
+			self.cursor.execute(query)
+		result = self.cursor.fetchone()
+		if self.debug:
+			if result == None:
+				msg = "Query '{query}' with args '{args}' didnt return any value".format(query=query, args=args)
+				self.logger.warning(msg)
+		return result
+
 
 if __name__ == "__main__":
 	db = Database()
+	
