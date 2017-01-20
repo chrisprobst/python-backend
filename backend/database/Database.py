@@ -10,6 +10,15 @@ class Database(object):
 	def createTables(self):
 		# self.cursor.execute( CREATE ALL TABLES NEEDED )
 		pass
+		self.cursor.execute(
+
+			"""CREATE TABLE IF NOT EXISTS `users` (
+			`username` TEXT PRIMARY KEY,
+			`passhash` TEXT,
+			`salt` TEXT,
+			`created_at` DATE DEFAULT CURRENT_TIMESTAMP
+
+		)""")
 
 	def commit(self):
 		return self.connection.commit()
