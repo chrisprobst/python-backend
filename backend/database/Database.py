@@ -16,7 +16,7 @@ class Database(object):
 			`username` TEXT PRIMARY KEY,
 			`passhash` TEXT,
 			`salt` TEXT,
-			`created_at` DATE DEFAULT CURRENT_TIMESTAMP
+			`created` DATE DEFAULT CURRENT_TIMESTAMP
 
 		)""")
 
