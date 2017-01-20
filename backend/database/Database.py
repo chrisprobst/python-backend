@@ -19,6 +19,14 @@ class Database(object):
 			`created` DATE DEFAULT CURRENT_TIMESTAMP
 
 		)""")
+		self.cursor.execute(
+
+			"""CREATE TABLE IF NOT EXISTS `api_tokens` (
+			`username` TEXT,
+			`api_token` TEXT,
+			PRIMARY KEY (username, api_token)
+
+		)""")
 
 	def commit(self):
 		return self.connection.commit()
@@ -29,11 +37,13 @@ class Database(object):
 		else:
 			self.cursor.execute(query)
 		result = self.cursor.fetchone()
-		if self.debug:
-			if not result:
+		if not result:
+			if self.debug:
 				msg = "Query '{query}' with args '{args}' didnt return any value".format(query=query, args=args)
 				self.logger.warning(msg)
-		return result[0]
+			return None
+		else:
+			return result[0]
 
 
 if __name__ == "__main__":
