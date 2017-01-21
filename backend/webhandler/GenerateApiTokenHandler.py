@@ -11,7 +11,7 @@ from util import PasshashVerifier
 
 class GenerateApiTokenHandler(BaseHandler.BaseHandler):
 
-	def get(self):
+	def post(self):
 		username = self.get_argument("username")
 		password = self.get_argument("password")
 		if self.isInvalidUsername(username):

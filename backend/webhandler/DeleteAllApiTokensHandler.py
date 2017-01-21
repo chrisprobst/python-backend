@@ -9,7 +9,7 @@ from util import ApiHandler
 
 class DeleteAllApiTokensHandler(ApiHandler.ApiHandler):
 
-	def get(self):
+	def post(self):
 		if self.apiTokenIsInvalid():
 			self.writeInvalidApiTokenResponse()
 			return
