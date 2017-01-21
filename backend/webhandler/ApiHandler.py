@@ -4,12 +4,10 @@
 import json
 
 import tornado.escape
-import tornado.web
 
-class ApiHandler(tornado.web.RequestHandler):
+from util import BaseHandler
 
-	def initialize(self, context):
-		self.context = context
+class ApiHandler(BaseHandler.BaseHandler):
 
 	def get(self):
 		data = {
