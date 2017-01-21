@@ -12,7 +12,9 @@ from config import Config
 from config import WebhandlerContext
 
 from webhandler import ApiHandler
-from webhandler import GenerateAccessTokenHandler
+from webhandler import GenerateApiTokenHandler
+from webhandler import DeleteApiTokenHandler
+from webhandler import DeleteAllApiTokensHandler
 
 def start_webserver(config_path, database_path):
 
@@ -33,7 +35,9 @@ def start_webserver(config_path, database_path):
 def start_tornado(ctx):
 	webhandlers = [
 		(r"/api", ApiHandler.ApiHandler, {"context": ctx}),
-		(r"/api/generateAccessToken", GenerateAccessTokenHandler.GenerateAccessTokenHandler, {"context": ctx}),
+		(r"/api/generateApiToken", GenerateApiTokenHandler.GenerateApiTokenHandler, {"context": ctx}),
+		(r"/api/deleteApiToken", DeleteApiTokenHandler.DeleteApiTokenHandler, {"context": ctx}),
+		(r"/api/deleteAllApiTokens", DeleteAllApiTokensHandler.DeleteAllApiTokensHandler, {"context": ctx}),
 		#(r"/logout", LogoutHandler.LogoutHandler, {"context": ctx}),
 		#(r"/confirm", ConfirmHandler.ConfirmHandler, {"context": ctx}),
 		#(r"/(favicon.ico)", tornado.web.StaticFileHandler, {"path": "img/favicon"})
