@@ -9,12 +9,15 @@ import tornado.escape
 from util import ApiHandler
 from backend.database.controller import ContactController
 
-contact = {
+"""
+Expected input data structure
+
+{
 	"contact": {
 		"id": 1,
 		"prefix": "Herr",
-		"first_name": "Alexander",
-		"last_name": "Schäfer",
+		"first_name": "Vorname",
+		"last_name": "Nachname",
 		"birth_date": "dd.mm.yyy",
 		"comment": "Test-Kommentar"
 	},
@@ -28,10 +31,10 @@ contact = {
 		{"id": 2, "contact_id": 1, "description": "Geschäftlich", "street": "Universitätsstraße", "number": "1", "addr_extra": "", "postal": "40225", "city": "Düsseldorf"}
 	],
 	"phone": [
-		{"id": 1, "contact_id": 1, "description": "Privat1", "number": "01734735210"},
-		{"id": 2, "contact_id": 1, "description": "Privat2", "number": "01734735210"},
-		{"id": 3, "contact_id": 1, "description": "Privat3", "number": "01734735210"},
-		{"id": 4, "contact_id": 1, "description": "Privat4", "number": "01734735210"}
+		{"id": 1, "contact_id": 1, "description": "Privat1", "number": "0123456789"},
+		{"id": 2, "contact_id": 1, "description": "Privat2", "number": "0123456789"},
+		{"id": 3, "contact_id": 1, "description": "Privat3", "number": "0123456789"},
+		{"id": 4, "contact_id": 1, "description": "Privat4", "number": "0123456789"}
 	],
 	"study": [
 		{"id": 1, "contact_id": 1, "status": "done", "school": "HHU", "course": "Informatik", "start": "dd.mm.yyyy", "end": "dd.mm.yyyy", "focus": "Netzwerksicherheit", "degree": "b_a"},
@@ -39,6 +42,8 @@ contact = {
 		 "school": "HHU", "course": "Informatik", "start": "dd.mm.yyyy", "end": "dd.mm.yyyy", "focus": "Nix", "degree": "m_sc"}
 	]
 }
+
+"""
 
 class CreateContactHandler(ApiHandler.ApiHandler):
 
