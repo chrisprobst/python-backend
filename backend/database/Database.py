@@ -91,6 +91,9 @@ class Database(object):
 	def commit(self):
 		return self.connection.commit()
 
+	def rollback(self):
+		return self.connection.rollback()
+
 	def getSingleValueByQuery(self, query, args=None):
 		if args:
 			self.cursor.execute(query,args)

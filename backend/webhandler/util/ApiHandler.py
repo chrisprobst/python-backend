@@ -17,6 +17,12 @@ class ApiHandler(BaseHandler.BaseHandler):
 		}
 		self.write(json.dumps(data))
 
+	def writeErrorResponse(self, e):
+		data = {
+			"error": repr(e)
+		}
+		self.write(json.dumps(data))
+
 	def _isInvalidApiToken(self, api_token):
 		query = "SELECT * FROM `api_tokens` WHERE api_token=?;"
 		data = self.context.database.getSingleValueByQuery(query, (api_token,))

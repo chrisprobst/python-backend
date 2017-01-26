@@ -16,6 +16,8 @@ from webhandler import GenerateApiTokenHandler
 from webhandler import DeleteApiTokenHandler
 from webhandler import DeleteAllApiTokensHandler
 from webhandler import CreateContactHandler
+from webhandler import UpdateContactHandler
+from webhandler import DeleteContactHandler
 
 def start_webserver(config_path, database_path):
 
@@ -40,6 +42,8 @@ def start_tornado(ctx):
 		(r"/api/deleteApiToken", DeleteApiTokenHandler.DeleteApiTokenHandler, {"context": ctx}),
 		(r"/api/deleteAllApiTokens", DeleteAllApiTokensHandler.DeleteAllApiTokensHandler, {"context": ctx}),
 		(r"/api/createContact", CreateContactHandler.CreateContactHandler, {"context": ctx}),
+		(r"/api/updateContact", UpdateContactHandler.UpdateContactHandler, {"context": ctx}),
+		(r"/api/deleteContact", DeleteContactHandler.DeleteContactHandler, {"context": ctx}),
 		#(r"/logout", LogoutHandler.LogoutHandler, {"context": ctx}),
 		#(r"/confirm", ConfirmHandler.ConfirmHandler, {"context": ctx}),
 		#(r"/(favicon.ico)", tornado.web.StaticFileHandler, {"path": "img/favicon"})
