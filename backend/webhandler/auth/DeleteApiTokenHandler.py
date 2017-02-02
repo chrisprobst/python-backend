@@ -5,13 +5,13 @@ import json
 
 import tornado.web
 
-from util import ApiHandler
+from backend.webhandler.util import ApiHandler
 
 class DeleteApiTokenHandler(ApiHandler.ApiHandler):
 
 	def post(self):
-		if self.apiTokenIsInvalid():
-			self.writeInvalidApiTokenResponse()
+		if self.api_token_is_invalid():
+			self.write_invalid_api_token_response()
 			return
 		delete_token = self.get_argument("delete_token")
 		if self.apiTokenIsNotInDatabase(delete_token):
