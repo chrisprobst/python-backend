@@ -65,6 +65,7 @@ class ContactController(object):
         Creates a new contact in the database given a contact structure. Note: since this contact is
         new, no "id" field in the "contact" data is required, just as no "contact_id" fields are
         required in "mail", "phone", "address" oder "study".
+        
         :param contact: (dict) A contact structure (no IDs required!)
         :param commit: (bool) If true, all changes will be committed at the end of the function call
         :return: (int) The generated contact id for the new contact record
@@ -93,6 +94,7 @@ class ContactController(object):
     def create_contacts(self, contacts):
         """
         Expects a list of contact structures and calls create_contact() on each of them.
+        
         :param contacts: ([dict]) A list of contact structures
         :return: ([int]) A list of the respective contact ids
         """
@@ -111,6 +113,7 @@ class ContactController(object):
     def create_dummy_contact(self):
         """
         Creates a dummy contact (a contact with fixed data).
+        
         :return: (int) The generated contact id for the new contact record
         """
         self.create_contact(ContactController.DUMMY_CONTACT_DATA)
@@ -124,6 +127,7 @@ class ContactController(object):
     def select_contact_for_id(self, contact_id):
         """
         Select a contact structure from database for a given ID.
+        
         :param contact_id: (int) The contact id to fetch from the database
         :return: (dict) The matching contact structure or an empty dictionary
         """
@@ -148,6 +152,7 @@ class ContactController(object):
     def select_contacts_for_ids(self, ids):
         """
         Select multiple contact structures for a given list of IDs.
+        
         :param ids: ([int]) List of contact ids to fetch from the database
         :return: ([dict]) A list of matching contact structures (can contain empty dicts for not matching IDs)
         """
@@ -159,6 +164,7 @@ class ContactController(object):
     def select_all_contact_ids(self):
         """
         Selects all existing contact IDs from the database.
+        
         :return: ([int]) A list of all existing contact IDs
         """
         self.database.cursor.execute(ContactController.QUERY_SELECT_ALL_CONTACT_IDS)
@@ -168,6 +174,7 @@ class ContactController(object):
     def select_all_contacts(self):
         """
         Calls select_contacts_for_ids with select_all_contact_ids() as argument.
+        
         :return: ([dict])  A list of all contact structures
         """
         contact_ids = self.select_all_contact_ids()
@@ -178,6 +185,7 @@ class ContactController(object):
         """
         Finds all contact ids of contacts matching the given filter.
         NOTE: The filter structure is not completely done, so please do not use this method by now!
+        
         :param contact_filter:
         :return: ([int]) A list of matching contact ids
         """
@@ -272,6 +280,7 @@ class ContactController(object):
         """
         Deletes a given contact structure. NOTE: This method expects a contact structure, not just a
         contact id!
+        
         :param contact: (dict) The contact structure to delete
         :return: (None)
         """
@@ -293,6 +302,7 @@ class ContactController(object):
     def _select_named_data(self, columns, table, where=""):
         """
         Select data from a given table and return a labeled data set
+        
         :param columns: ([str]) A list of columns to select (NOTE: to select all columns, pass ["*"])
         :param table: (str) Table to select from
         :param where: (str) A valid mysqlite3 WHERE clause. NOTE: if no filter is necessary, you can omit the argument
@@ -317,11 +327,19 @@ class ContactController(object):
         result = [dict(zip(columns, data)) for data in self.database.cursor.fetchall()]
         return result
     
-    def _insert_json_in_table(self, json, table, commit=False):
-        columns = json.keys()
+    def _insert_json_in_table(self, row, table, commit=False):
+        """
+        Inserts a dict containing column/value pairs into a given table
+        
+        :param row: (dict) The data to insert into 'table'
+        :param table: (str) The table name to insert the data in
+        :param commit: (bool) If True, this method will automatically commit all changes
+        :return: (int) The ID of the last row inserted
+        """
+        columns = row.keys()
         if ContactController._columns_are_invalid_for_table(columns, table):
             raise ValueError("Invalid columns: {columns}".format(columns=columns))
-        values = json.values()
+        values = row.values()
         query = ContactController.INSERT_QUERY.format(
             table=table,
             columns=",".join(columns),
