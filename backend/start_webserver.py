@@ -14,7 +14,7 @@ from webhandler.auth import GenerateApiTokenHandler
 from webhandler.auth import DeleteApiTokenHandler
 from webhandler.auth import DeleteAllApiTokensHandler
 from webhandler.contact import CreateContactHandler
-from webhandler.contact import SelectContactHandler
+from webhandler.contact import SelectContactForIdHandler
 from webhandler.contact import UpdateContactHandler
 from webhandler.contact import DeleteContactHandler
 
@@ -38,7 +38,7 @@ def start_tornado(ctx):
         (r"/api/auth/deleteApiToken", DeleteApiTokenHandler.DeleteApiTokenHandler, {"context": ctx}),
         (r"/api/auth/deleteAllApiTokens", DeleteAllApiTokensHandler.DeleteAllApiTokensHandler, {"context": ctx}),
         (r"/api/contact/createContact", CreateContactHandler.CreateContactHandler, {"context": ctx}),
-        (r"/api/contact/selectContact", SelectContactHandler.SelectContactHandler, {"context": ctx}),
+        (r"/api/contact/selectContact", SelectContactForIdHandler.SelectContactForIdHandler, {"context": ctx}),
         (r"/api/contact/updateContact", UpdateContactHandler.UpdateContactHandler, {"context": ctx}),
         (r"/api/contact/deleteContact", DeleteContactHandler.DeleteContactHandler, {"context": ctx}),
         # (r"/logout", LogoutHandler.LogoutHandler, {"context": ctx}),

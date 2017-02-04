@@ -167,6 +167,7 @@ class ContactController(object):
         contact_ids = self.select_all_contact_ids()
         return self.select_contacts_for_ids(contact_ids)
     
+    # TODO: NO HANDLER YET!
     def select_contact_ids_by_filter(self, contact_filter):
         """
         Finds all contact ids of contacts matching the given filter.
@@ -225,6 +226,7 @@ class ContactController(object):
             all_contact_ids = all_contact_ids.intersection(result_contact_ids)
         return all_contact_ids
     
+    # TODO: NO HANDLER YET!
     def select_contacts_by_search(self, json):
         # TODO: NOT IMPLEMENTED YET
         pass
