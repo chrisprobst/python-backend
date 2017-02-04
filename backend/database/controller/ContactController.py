@@ -168,7 +168,7 @@ class ContactController(object):
         :return: ([int]) A list of all existing contact IDs
         """
         self.database.cursor.execute(ContactController.QUERY_SELECT_ALL_CONTACT_IDS)
-        contact_ids = self.database.cursor.fetchall()
+        contact_ids = [result[0] for result in self.database.cursor.fetchall()]
         return contact_ids
     
     def select_all_contacts(self):

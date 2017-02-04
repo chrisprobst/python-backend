@@ -9,7 +9,6 @@ import tornado.escape
 from backend.webhandler.util import ApiHandler
 from backend.database.controller import ContactController
 
-
 class CreateContactHandler(ApiHandler.ApiHandler):
 
     def post(self):

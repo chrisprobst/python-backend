@@ -31,4 +31,3 @@ class SelectContactForIdHandler(ApiHandler.ApiHandler):
             "error": None
         }
         self.write(json.dumps(data))
-        print str(2)
