@@ -5,7 +5,7 @@ from passlib.hash import pbkdf2_sha256
 
 from backend.database import Database
 
-db = Database.Database("../../myDatabase.db")
+db = Database.Database("../../../myDatabase.db")
 username = raw_input("Username: ")
 password = raw_input("Password: ")
 print "Generate salt..."

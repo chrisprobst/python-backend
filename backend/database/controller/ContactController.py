@@ -14,7 +14,7 @@ class ContactController(object):
     # TODO: Export to BaseController
     SELECT_QUERY = "SELECT {columns} FROM `{table}` WHERE {filter};"
     SELECT_QUERY_NO_WHERE = "SELECT {columns} FROM `{table}`;"
-    INSERT_QUERY = "INSERT INTO `{table}` ({columns}) VALUES ({values});"
+    INSERT_QUERY = "INSERT INTO `{table}` ({columns}) VALUES ({placeholders});"
     UPDATE_QUERY = "UPDATE `{table}` SET {updates} WHERE {filter};"
     DELETE_QUERY = "DELETE FROM `{table}` WHERE {filter};"
     QUERY_SELECT_ALL_CONTACT_IDS = "SELECT id FROM `contact`;"
@@ -28,20 +28,26 @@ class ContactController(object):
             "comment": "Test-Kommentar"
         },
         "mail": [
-            {"description": "Test Mail1", "address": "alex1@alex.de"},
+            {"description": "Test Mail1", "address": "alex1@alex.de"}
         ],
         "address": [
-            {"description": "Privat", "street": "Gilbachstrasse", "number": "7-9", "addr_extra": "", "postal": "40219",
-             "city": "Duesseldorf"}
+            {"description": "Privat", "street": "Gilbachstrasse", "number": "7-9", "addr_extra": "", "postal": "40219", "city": "Duesseldorf"}
         ],
         "phone": [
             {"description": "Privat1", "number": "0123456789"}
         ],
         "study": [
-            {"status": "done", "school": "HHU", "course": "Informatik", "start": "dd.mm.yyyy", "end": "dd.mm.yyyy",
-             "focus": "Netzwerksicherheit", "degree": "b_a"}
+            {"status": "done", "school": "HHU", "course": "Informatik", "start": "dd.mm.yyyy", "end": "dd.mm.yyyy", "focus": "Netzwerksicherheit", "degree": "b_a"}
         ]
     }
+    
+    @staticmethod
+    def _columns_are_invalid_for_table(columns, table):
+        valid_columns = ContactController.TABLE_COLUMNS[table]
+        for col in columns:
+            if col not in valid_columns:
+                return True
+        return False
     
     # TODO: Database will be passed to BaseController
     def __init__(self, database):
@@ -312,14 +318,16 @@ class ContactController(object):
         return result
     
     def _insert_json_in_table(self, json, table, commit=False):
-        columns = json[table].keys()
-        values = json[table].values()
+        columns = json.keys()
+        if ContactController._columns_are_invalid_for_table(columns, table):
+            raise ValueError("Invalid columns: {columns}".format(columns=columns))
+        values = json.values()
         query = ContactController.INSERT_QUERY.format(
             table=table,
-            columns=columns,
-            values=values
+            columns=",".join(columns),
+            placeholders=",".join(list("?"*len(columns)))
         )
-        self.database.cursor.execute(query)
+        self.database.cursor.execute(query, values)
         if commit:
             self.database.commit()
         return self.database.cursor.lastrowid
