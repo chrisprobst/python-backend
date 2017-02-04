@@ -38,7 +38,7 @@ def start_tornado(ctx):
         (r"/api/auth/deleteApiToken", DeleteApiTokenHandler.DeleteApiTokenHandler, {"context": ctx}),
         (r"/api/auth/deleteAllApiTokens", DeleteAllApiTokensHandler.DeleteAllApiTokensHandler, {"context": ctx}),
         (r"/api/contact/createContact", CreateContactHandler.CreateContactHandler, {"context": ctx}),
-        (r"/api/contact/selectContact", SelectContactForIdHandler.SelectContactForIdHandler, {"context": ctx}),
+        (r"/api/contact/selectContactForId", SelectContactForIdHandler.SelectContactForIdHandler, {"context": ctx}),
         (r"/api/contact/updateContact", UpdateContactHandler.UpdateContactHandler, {"context": ctx}),
         (r"/api/contact/deleteContact", DeleteContactHandler.DeleteContactHandler, {"context": ctx}),
         # (r"/logout", LogoutHandler.LogoutHandler, {"context": ctx}),
