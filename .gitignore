@@ -1,3 +1,6 @@
+# Exclude sqlite databases
+*.db
+
 *.DS_Store
 .idea
 
