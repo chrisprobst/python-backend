@@ -1,0 +1,13 @@
+General TODOs:
+
+- Apply PEP8 to all files
+- Write tests for all current modules and classes
+- Add logger and config information to all classes (e.g. find an efficient way to to this)
+- Add docker file to the project
+- Update the README file
+- Add more scripts to setup the project and perform simple tasks on it
+- Think about continuous integration and the complete server architecture
+
+Far away TODOs:
+
+- Think about how to upgrade the system for not only HHC but different organizations (maybe one day ready to sale?)
