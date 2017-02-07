@@ -128,7 +128,7 @@ class ContactController(object):
     def select_contact_for_id(self, contact_id):
         """
         Select a contact structure from database for a given ID.
-        
+
         :param contact_id: (int) The contact id to fetch from the database
         :return: (dict) The matching contact structure or an empty dictionary
         """
@@ -292,18 +292,16 @@ class ContactController(object):
         :return: (None)
         """
         contact_id = contact["contact"]["id"]
+        id_filter = "id={id}".format(id=contact_id)
+        contact_id_filter = "contact_id={id}".format(id=contact_id)
         #try:
         #    self.delete_by_id("contact", contact_id)
         try:
-            self._delete_json_in_table(contact["contact"], "contact")
-            for mail in contact["mail"]:
-                self._delete_json_in_table(mail, "mail")
-            for address in contact["address"]:
-                self._delete_json_in_table(address, "address")
-            for phone in contact["phone"]:
-                self._delete_json_in_table(phone, "phone")
-            for study in contact["study"]:
-                self._delete_json_in_table(study, "study")
+            self._delete_json_in_table("contact", id_filter)
+            self._delete_json_in_table("mail", contact_id_filter)
+            self._delete_json_in_table("phone", contact_id_filter)
+            self._delete_json_in_table("address", contact_id_filter)
+            self._delete_json_in_table("study", contact_id_filter)
             self.database.commit()
         except BaseException, e:
             self.database.rollback()
