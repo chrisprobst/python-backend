@@ -33,6 +33,7 @@ def start_webserver(config_path, database_path):
     start_tornado(ctx)
 
 
+# TODO: Based on the webhandler file structure the routes and respective classes could be loaded dynamically
 def start_tornado(ctx):
     webhandlers = [
         (r"/api/auth/generateApiToken", GenerateApiTokenHandler.GenerateApiTokenHandler, {"context": ctx}),

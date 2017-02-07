@@ -17,6 +17,7 @@ class ContactController(object):
     INSERT_QUERY = "INSERT INTO `{table}` ({columns}) VALUES ({placeholders});"
     UPDATE_QUERY = "UPDATE `{table}` SET {updates} WHERE {filter};"
     DELETE_QUERY = "DELETE FROM `{table}` WHERE {filter};"
+    DELETE_BY_ID_QUERY = "DELETE FROM `{table}` WHERE {id}=?;"
     QUERY_SELECT_ALL_CONTACT_IDS = "SELECT id FROM `contact`;"
     
     DUMMY_CONTACT_DATA = {
@@ -251,19 +252,25 @@ class ContactController(object):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     
-    def update_contact(self, json):
-        contact_id = json["contact"]["id"]
+    def update_contact(self, contact):
+        """
+        TBD
+        :param contact: (dict) A dictionary that contains a valid contact structure
+        :return:
+        """
+        # json ist die gesamte contact struktur
+        contact_id = contact["contact"]["id"]
         id_filter = "id={id}".format(id=contact_id)
         contact_id_filter = "contact_id={id}".format(id=contact_id)
         try:
-            self._update_table("contact", json["contact"], id_filter)
-            for mail in json["mail"]:
+            self._update_table("contact", contact["contact"], id_filter)
+            for mail in contact["mail"]:
                 self._update_table("mail", mail, contact_id_filter)
-            for address in json["address"]:
+            for address in contact["address"]:
                 self._update_table("address", address, contact_id_filter)
-            for phone in json["phone"]:
+            for phone in contact["phone"]:
                 self._update_table("phone", phone, contact_id_filter)
-            for study in json["study"]:
+            for study in contact["study"]:
                 self._update_table("study", study, contact_id_filter)
             self.database.commit()
         except BaseException, e:
@@ -284,6 +291,9 @@ class ContactController(object):
         :param contact: (dict) The contact structure to delete
         :return: (None)
         """
+        contact_id = contact["contact"]["id"]
+        #try:
+        #    self.delete_by_id("contact", contact_id)
         try:
             self._delete_json_in_table(contact["contact"], "contact")
             for mail in contact["mail"]:
@@ -360,13 +370,29 @@ class ContactController(object):
         :param commit: (bool) Commit changes within function call
         :return: (none)
         """
-        updates = ",".join(["{key}={val}".format(key=key, val=val) for key, val in data.iteritems()])
+        columns = filter(lambda col: col in ContactController.TABLE_COLUMNS[table] ,data.keys())
+        updates = ",".join(["{column}=?".format(column=column) for column in columns])
         query = ContactController.UPDATE_QUERY.format(
             table=table,
             updates=updates,
             filter=where
         )
-        self.database.cursor.execute(query)
+        args = data.values()
+        self.database.cursor.execute(query, args)
+        if commit:
+            self.database.commit()
+    
+    def delete_by_id(self, table, id, commit=False):
+        if table == "contact":
+            primary = "id"
+        else:
+            primary = "contact_id"
+        query = ContactController.DELETE_BY_ID_QUERY.format(
+            table=table,
+            id=primary
+        )
+        args = (id,)
+        self.database.cursor.execute(query, args)
         if commit:
             self.database.commit()
     
