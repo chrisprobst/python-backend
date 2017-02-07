@@ -3,16 +3,18 @@ import time
 
 from passlib.hash import pbkdf2_sha256
 
-import Database
+from backend.database import Database
 
-db = Database.Database("../../myDatabase.db")
+db = Database.Database("../../../myDatabase.db")
 username = raw_input("Username: ")
 password = raw_input("Password: ")
+print "Generate salt..."
 salt = os.urandom(256).encode('hex')
 salted_password = salt+password
+print "Compute passhash..."
 hashed_password = pbkdf2_sha256.encrypt(salted_password, rounds=400000)
-print "Hashed and salted password:", hashed_password
-
+print "Generated passhash:", hashed_password
+print "Insert into database..."
 query = "INSERT INTO users (username, passhash, salt, created) VALUES (?,?,?,?);"
 args = (
 	username,
@@ -22,3 +24,4 @@ args = (
 )
 db.cursor.execute(query, args)
 db.commit()
+print "Done."

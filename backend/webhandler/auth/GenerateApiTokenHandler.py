@@ -4,14 +4,12 @@
 import json
 import os
 
-import tornado.web
-
-from util import BaseHandler
-from util import PasshashVerifier
+from backend.webhandler.util import BaseHandler
+from backend.webhandler.util import PasshashVerifier
 
 class GenerateApiTokenHandler(BaseHandler.BaseHandler):
 
-	def get(self):
+	def post(self):
 		username = self.get_argument("username")
 		password = self.get_argument("password")
 		if self.isInvalidUsername(username):
@@ -35,7 +33,7 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
 		passhash_query = "SELECT passhash FROM `users` WHERE username=?"
 		salt = self.context.database.getSingleValueByQuery(salt_query, (username,))
 		passhash = self.context.database.getSingleValueByQuery(passhash_query, (username,))
-		return not PasshashVerifier.PasshashVerifier().verify(password, salt, passhash)
+		return not PasshashVerifier.PasshashVerifier.verify(password, salt, passhash)
 
 	def writeInvalidUsernameResponse(self):
 		data = {
