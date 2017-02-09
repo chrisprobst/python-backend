@@ -3,15 +3,19 @@
 
 import json
 
-import tornado.web
 import tornado.escape
 
 from backend.webhandler.util import ApiHandler
 from backend.database.controller import ContactController
 
+
 class CreateContactHandler(ApiHandler.ApiHandler):
 
     def post(self):
+        """
+        Post handler for CreatecontactHandler
+        :return: (none)
+        """
         if self.api_token_is_invalid():
             self.write_invalid_api_token_response()
             return
@@ -24,6 +28,11 @@ class CreateContactHandler(ApiHandler.ApiHandler):
             self.write_error_response(e)
     
     def write_success_response(self, contact_id):
+        """
+        Write a success JSON response that contains the created contact's id
+        :param contact_id: (int) The new contact id
+        :return: (none)
+        """
         data = {
             "contact_id": contact_id,
             "error": None
