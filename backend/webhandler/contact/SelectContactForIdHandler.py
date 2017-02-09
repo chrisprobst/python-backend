@@ -10,6 +10,7 @@ from backend.database.controller import ContactController
 
 import traceback
 
+
 class SelectContactForIdHandler(ApiHandler.ApiHandler):
 
     def post(self):
