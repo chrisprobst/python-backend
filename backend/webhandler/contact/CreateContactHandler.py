@@ -13,7 +13,7 @@ class CreateContactHandler(ApiHandler.ApiHandler):
 
     def post(self):
         """
-        Post handler for CreatecontactHandler
+        Post handler for CreateContactHandler
         :return: (none)
         """
         if self.api_token_is_invalid():
