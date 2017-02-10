@@ -22,8 +22,7 @@ from webhandler.contact import UpdateContactHandler
 from webhandler.contact import DeleteContactHandler
 
 
-def start_webserver(config_path, database_path, log_path):
-    # TODO: check wether config_path is given
+def setup_logger(log_path):
     logger = logging.getLogger("internHHC")
     logger.setLevel(logging.DEBUG)
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-8.8s]  %(message)s")
@@ -42,16 +41,15 @@ def start_webserver(config_path, database_path, log_path):
         logging.getLogger("tornado.access").addHandler(log_filehandler)
         logging.getLogger("tornado.application").addHandler(log_filehandler)
         logging.getLogger("tornado.general").addHandler(log_filehandler)
+    return logger
+
+
+def start_webserver(config_path, database_path, log_path):
+    # TODO: check wether config_path is given
+    logger = setup_logger(log_path)
     logger.info("Starting server...")
-    logger.info("Loading config file...")
-    cfg = Config.Config(config_path)
-    logger.info("Config file set up")
-    logger.info("Try to set up database...")
-    dbs = Database.Database(
-        database_path,
-        logger=logger
-    )
-    logger.info("Database set up")
+    cfg = Config.Config(config_path, logger)
+    dbs = Database.Database(database_path, logger)
     ctx = WebhandlerContext.WebhandlerContext(cfg, dbs, logger)
     start_tornado(ctx)
 

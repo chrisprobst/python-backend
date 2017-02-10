@@ -3,9 +3,9 @@ import sqlite3
 
 class Database(object):
     
-    def __init__(self, path, debug=False, logger=None):
-        self.debug = debug
+    def __init__(self, path, logger):
         self.logger = logger
+        self.logger.info("Create database connection to: {path}".format(path=path))
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
         self.create_tables()
@@ -96,9 +96,11 @@ class Database(object):
         )
     
     def commit(self):
+        self.logger.debug("Commit database changes")
         return self.connection.commit()
     
     def rollback(self):
+        self.logger.debug("Rollback database changes")
         return self.connection.rollback()
     
     def get_single_value_by_query(self, query, args=None):
