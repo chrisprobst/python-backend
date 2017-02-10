@@ -28,7 +28,7 @@ class DeleteAllApiTokensHandler(ApiHandler.ApiHandler):
         """
         username_query = "SELECT username FROM api_tokens WHERE api_token=?;"
         args = (api_token,)
-        username = self.context.database.getSingleValueByQuery(username_query, args)
+        username = self.context.database.get_single_value_by_query(username_query, args)
         delete_query = "DELETE FROM api_tokens WHERE username=?;"
         args = (username,)
         self.context.database.cursor.execute(delete_query, args)

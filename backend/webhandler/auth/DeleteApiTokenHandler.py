@@ -32,7 +32,7 @@ class DeleteApiTokenHandler(ApiHandler.ApiHandler):
         :return: (bool)
         """
         query = "SELECT * FROM `api_tokens` WHERE api_token=?;"
-        data = self.context.database.getSingleValueByQuery(query, (api_token,))
+        data = self.context.database.get_single_value_by_query(query, (api_token,))
         if data is not None:
             return True
         return False

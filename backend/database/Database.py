@@ -2,14 +2,15 @@ import sqlite3
 
 
 class Database(object):
+    
     def __init__(self, path, debug=False, logger=None):
         self.debug = debug
         self.logger = logger
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
-        self.createTables()
+        self.create_tables()
     
-    def createTables(self):
+    def create_tables(self):
         self.cursor.execute(
             """CREATE TABLE IF NOT EXISTS `contact` (
                 `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -100,7 +101,7 @@ class Database(object):
     def rollback(self):
         return self.connection.rollback()
     
-    def getSingleValueByQuery(self, query, args=None):
+    def get_single_value_by_query(self, query, args=None):
         if args:
             self.cursor.execute(query, args)
         else:
@@ -113,7 +114,3 @@ class Database(object):
             return None
         else:
             return result[0]
-
-
-if __name__ == "__main__":
-    db = Database()

@@ -41,7 +41,7 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
         :return: (bool)
         """
         query = "SELECT * FROM `users` WHERE username=?;"
-        userdata = self.context.database.getSingleValueByQuery(query, (username,))
+        userdata = self.context.database.get_single_value_by_query(query, (username,))
         if userdata is not None:
             return True
         return False
@@ -55,8 +55,8 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
         """
         salt_query = "SELECT salt FROM `users` WHERE username=?"
         passhash_query = "SELECT passhash FROM `users` WHERE username=?"
-        salt = self.context.database.getSingleValueByQuery(salt_query, (username,))
-        passhash = self.context.database.getSingleValueByQuery(passhash_query, (username,))
+        salt = self.context.database.get_single_value_by_query(salt_query, (username,))
+        passhash = self.context.database.get_single_value_by_query(passhash_query, (username,))
         return not PasshashVerifier.PasshashVerifier.verify(password, salt, passhash)
     
     def write_invalid_username_response(self):
