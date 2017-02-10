@@ -1,10 +1,10 @@
 General TODOs:
 
-- Apply PEP8 to all files
+- Apply PEP8 to all files [DONE]
 - Write one response method for Handlers write_response(data={}, error=None) and just write this as JSON
 - Improve DB Controller structure (BaseController, AuthController, ...)
 - Write tests for all current modules and classes
-- Add logger and config information to all classes (e.g. find an efficient way to to this)
+- Add logger and config information to all classes (e.g. find an efficient way to to this) [DONE]
 - Add docker file to the project
 - Update the README file
 - Add more scripts to setup the project and perform simple tasks on it
