@@ -6,7 +6,12 @@ import json
 
 class Config(object):
 
-    def __init__(self, config_path):
+    def __init__(self, config_path, logger):
         with open(config_path) as settings_file:
+            logger.info("Load configuration file: {path}".format(path=config_path))
             settings_data = json.load(settings_file)
+            logger.debug("Load configuration settings:")
+            for key, value in config_path.iteritems():
+                output = "Set {key}={value}"
+                logger.debug(output.format(key=key, value=value))
             self.__dict__.update(settings_data)
