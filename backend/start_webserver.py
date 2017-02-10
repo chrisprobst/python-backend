@@ -30,20 +30,29 @@ def start_webserver(config_path, database_path, log_path):
     log_streamhandler = logging.StreamHandler()
     log_streamhandler.setFormatter(log_formatter)
     logger.addHandler(log_streamhandler)
+    logging.getLogger("tornado.access").addHandler(log_streamhandler)
+    logging.getLogger("tornado.application").addHandler(log_streamhandler)
+    logging.getLogger("tornado.general").addHandler(log_streamhandler)
     if log_path:
         log_filename = "{name}.log".format(name=datetime.datetime.now().isoformat())
         log_filepath = os.path.join(log_path, log_filename)
         log_filehandler = logging.FileHandler(log_filepath)
         log_filehandler.setFormatter(log_formatter)
         logger.addHandler(log_filehandler)
-        
+        logging.getLogger("tornado.access").addHandler(log_filehandler)
+        logging.getLogger("tornado.application").addHandler(log_filehandler)
+        logging.getLogger("tornado.general").addHandler(log_filehandler)
+    logger.info("Starting server...")
+    logger.info("Loading config file...")
     cfg = Config.Config(config_path)
+    logger.info("Config file set up")
+    logger.info("Try to set up database...")
     dbs = Database.Database(
         database_path,
         logger=logger
     )
+    logger.info("Database set up")
     ctx = WebhandlerContext.WebhandlerContext(cfg, dbs, logger)
-    ctx.logger.warning("It works!")
     start_tornado(ctx)
 
 
