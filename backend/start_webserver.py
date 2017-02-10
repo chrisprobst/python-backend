@@ -21,26 +21,34 @@ from webhandler.contact import SelectAllContactsHandler
 from webhandler.contact import UpdateContactHandler
 from webhandler.contact import DeleteContactHandler
 
+stdout_log_format = "%(asctime)s [%(threadName)-12.12s] [%(levelname)-8.8s]  %(message)s"
+tornado_log_format = "%(asctime)s [Tornado     ] [%(levelname)-8.8s]  %(message)s"
+
 
 def setup_logger(log_path):
-    logger = logging.getLogger("internHHC")
+    logger = logging.getLogger("main")
     logger.setLevel(logging.DEBUG)
-    log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-8.8s]  %(message)s")
+    stdout_formatter = logging.Formatter(stdout_log_format)
+    tornado_formatter = logging.Formatter(tornado_log_format)
     log_streamhandler = logging.StreamHandler()
-    log_streamhandler.setFormatter(log_formatter)
+    log_streamhandler.setFormatter(stdout_formatter)
+    log_tornado_streamhandler = logging.StreamHandler()
+    log_tornado_streamhandler.setFormatter(tornado_formatter)
     logger.addHandler(log_streamhandler)
-    logging.getLogger("tornado.access").addHandler(log_streamhandler)
-    logging.getLogger("tornado.application").addHandler(log_streamhandler)
-    logging.getLogger("tornado.general").addHandler(log_streamhandler)
+    logging.getLogger("tornado.access").addHandler(log_tornado_streamhandler)
+    logging.getLogger("tornado.application").addHandler(log_tornado_streamhandler)
+    logging.getLogger("tornado.general").addHandler(log_tornado_streamhandler)
     if log_path:
         log_filename = "{name}.log".format(name=datetime.datetime.now().isoformat())
         log_filepath = os.path.join(log_path, log_filename)
         log_filehandler = logging.FileHandler(log_filepath)
-        log_filehandler.setFormatter(log_formatter)
+        log_filehandler.setFormatter(stdout_formatter)
+        log_tornado_filehandler = logging.FileHandler(log_filepath)
+        log_tornado_filehandler.setFormatter(tornado_formatter)
         logger.addHandler(log_filehandler)
-        logging.getLogger("tornado.access").addHandler(log_filehandler)
-        logging.getLogger("tornado.application").addHandler(log_filehandler)
-        logging.getLogger("tornado.general").addHandler(log_filehandler)
+        logging.getLogger("tornado.access").addHandler(log_tornado_filehandler)
+        logging.getLogger("tornado.application").addHandler(log_tornado_filehandler)
+        logging.getLogger("tornado.general").addHandler(log_tornado_filehandler)
     return logger
 
 
@@ -69,15 +77,18 @@ def start_tornado(ctx):
         # (r"/confirm", ConfirmHandler.ConfirmHandler, {"context": ctx}),
         # (r"/(.*.png)", tornado.web.StaticFileHandler, {"path": "img/"})
     ]
+    for handler in webhandlers:
+        ctx.logger.info("Setup route '{r}' for handler {h}".format(r=handler[0], h=handler[1].__name__))
     app = tornado.web.Application(webhandlers)
+    host = ctx.config.tornado["host"]
+    port = ctx.config.tornado["port"]
     app.listen(
-        ctx.config.tornado["port"],
-        address=ctx.config.tornado["host"]
+        port,
+        address=host
     )
-    
-    print "Listening on localhost:%d..." % ctx.config.tornado["port"]
+    ctx.logger.info("Listening on {host}:{port}".format(host=host, port=port))
     try:
         tornado.ioloop.IOLoop.current().start()
     except KeyboardInterrupt:
         pass
-    print "Done."
+    ctx.logger.info("Shutting down webserver")
