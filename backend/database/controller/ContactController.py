@@ -1,3 +1,7 @@
+#! /usr/bin/python
+# -*- coding: iso-8859-1 -*-
+
+
 class ContactController(object):
     
     # TODO: Remove 'json' parameters since they are implicit and unuseful
@@ -227,7 +231,7 @@ class ContactController(object):
                 contact_filter["study"]["filter"]
             )]
         )
-        all_contact_ids = self.select_all_contact_ids()
+        all_contact_ids = set(self.select_all_contact_ids())
         # Apply all filters
         if contact_filter["mail"]["filter"]:
             all_contact_ids = all_contact_ids.intersection(result_mail_contact_ids)
@@ -239,7 +243,7 @@ class ContactController(object):
             all_contact_ids = all_contact_ids.intersection(result_study_contact_ids)
         if contact_filter["contact"]["filter"]:
             all_contact_ids = all_contact_ids.intersection(result_contact_ids)
-        return all_contact_ids
+        return list(all_contact_ids)
     
     # TODO: NO HANDLER YET!
     def select_contacts_by_search(self, json):
@@ -294,8 +298,6 @@ class ContactController(object):
         contact_id = contact["contact"]["id"]
         id_filter = "id={id}".format(id=contact_id)
         contact_id_filter = "contact_id={id}".format(id=contact_id)
-        #try:
-        #    self.delete_by_id("contact", contact_id)
         try:
             self._delete_json_in_table("contact", id_filter)
             self._delete_json_in_table("mail", contact_id_filter)
