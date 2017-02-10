@@ -1,6 +1,5 @@
 import json
 
-import tornado.web
 import tornado.escape
 
 from backend.webhandler.util import ApiHandler
@@ -8,7 +7,12 @@ from backend.database.controller import ContactController
 
 
 class SelectContactsForIdsHandler(ApiHandler.ApiHandler):
+    
     def post(self):
+        """
+        Post handler for UpdateContactForIdHandler
+        :return: (none)
+        """
         if self.api_token_is_invalid():
             self.write_invalid_api_token_response()
             return
@@ -23,6 +27,9 @@ class SelectContactsForIdsHandler(ApiHandler.ApiHandler):
             self.write_error_response(e)
     
     def write_success_response(self, result):
+        """
+        TODO: remove this method to parent class
+        """
         data = {
             "result": result,
             "error": None
