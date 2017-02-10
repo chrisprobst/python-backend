@@ -1,10 +1,12 @@
-import argparse
+#! /usr/bin/python
+# -*- coding: iso-8859-1 -*-
 
-# Prepare arguments when started from console
-# and start webserver
+# import argparse
 
 from backend.start_webserver import start_webserver
+
 start_webserver(
-	"default_config.json",
-	"myDatabase.db"
+    "default_config.json",
+    "myDatabase.db",
+    "./log"
 )

@@ -1,7 +1,9 @@
 #! /usr/bin/python
 # -*- coding: iso-8859-1 -*-
 
+import datetime
 import logging
+import os
 
 import tornado.web
 import tornado.ioloop
@@ -20,16 +22,20 @@ from webhandler.contact import UpdateContactHandler
 from webhandler.contact import DeleteContactHandler
 
 
-def start_webserver(config_path, database_path):
-    # TODO: add logging destination path
+def start_webserver(config_path, database_path, log_path):
     # TODO: check wether config_path is given
-    log = logging.getLogger("internHHC")
+    logger = logging.getLogger("internHHC")
+    log_filename = "{name}.log".format(name=datetime.datetime.now().isoformat())
+    log_filepath = os.path.join(log_path, log_filename)
+    log_filehandler = logging.FileHandler(log_filepath)
+    logger.addHandler(log_filehandler)
     cfg = Config.Config(config_path)
     dbs = Database.Database(
         database_path,
-        logger=log
+        logger=logger
     )
-    ctx = WebhandlerContext.WebhandlerContext(cfg, dbs, log)
+    ctx = WebhandlerContext.WebhandlerContext(cfg, dbs, logger)
+    ctx.logger.warning("It works!")
     start_tornado(ctx)
 
 
