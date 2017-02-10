@@ -25,10 +25,18 @@ from webhandler.contact import DeleteContactHandler
 def start_webserver(config_path, database_path, log_path):
     # TODO: check wether config_path is given
     logger = logging.getLogger("internHHC")
-    log_filename = "{name}.log".format(name=datetime.datetime.now().isoformat())
-    log_filepath = os.path.join(log_path, log_filename)
-    log_filehandler = logging.FileHandler(log_filepath)
-    logger.addHandler(log_filehandler)
+    logger.setLevel(logging.DEBUG)
+    log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-8.8s]  %(message)s")
+    log_streamhandler = logging.StreamHandler()
+    log_streamhandler.setFormatter(log_formatter)
+    logger.addHandler(log_streamhandler)
+    if log_path:
+        log_filename = "{name}.log".format(name=datetime.datetime.now().isoformat())
+        log_filepath = os.path.join(log_path, log_filename)
+        log_filehandler = logging.FileHandler(log_filepath)
+        log_filehandler.setFormatter(log_formatter)
+        logger.addHandler(log_filehandler)
+        
     cfg = Config.Config(config_path)
     dbs = Database.Database(
         database_path,
