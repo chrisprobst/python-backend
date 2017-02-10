@@ -112,7 +112,7 @@ class Database(object):
         if not result:
             if self.debug:
                 msg = "Query '{query}' with args '{args}' didnt return any value".format(query=query, args=args)
-                self.logger.warning(msg)
+                self.logger.debug(msg)
             return None
         else:
             return result[0]

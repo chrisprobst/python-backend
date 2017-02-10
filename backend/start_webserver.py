@@ -86,9 +86,9 @@ def start_tornado(ctx):
         port,
         address=host
     )
-    ctx.logger.info("Listening on {host}:{port}".format(host=host, port=port))
+    ctx.logger.info("Listen on {host}:{port}".format(host=host, port=port))
     try:
         tornado.ioloop.IOLoop.current().start()
     except KeyboardInterrupt:
         pass
-    ctx.logger.info("Shutting down webserver")
+    ctx.logger.info("Shut down webserver")

@@ -7,6 +7,8 @@ import BaseHandler
 
 
 class ApiHandler(BaseHandler.BaseHandler):
+    
+    LOG_INVALID_API_TOKEN = "Received invalid api token {token}"
 
     def api_token_is_invalid(self):
         api_token = self.get_argument("api_token")
@@ -28,5 +30,6 @@ class ApiHandler(BaseHandler.BaseHandler):
         query = "SELECT * FROM `api_tokens` WHERE api_token=?;"
         data = self.context.database.get_single_value_by_query(query, (api_token,))
         if not data:
+            self.context.logger.debug(ApiHandler.LOG_INVALID_API_TOKEN.format(token=api_token))
             return True
         return False
