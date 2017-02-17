@@ -110,9 +110,8 @@ class Database(object):
             self.cursor.execute(query)
         result = self.cursor.fetchone()
         if not result:
-            if self.debug:
-                msg = "Query '{query}' with args '{args}' didnt return any value".format(query=query, args=args)
-                self.logger.debug(msg)
+            msg = "Query '{query}' with args '{args}' didnt return any value".format(query=query, args=args)
+            self.logger.debug(msg)
             return None
         else:
             return result[0]
