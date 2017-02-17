@@ -248,8 +248,65 @@ class ContactController(object):
     # TODO: NO HANDLER YET!
     def select_contacts_by_search(self, json):
         # TODO: NOT IMPLEMENTED YET
+        """
+        post structure
+            {
+                searchs_words: [a, b]
+                filter-f1_table-f1_column : [c, d],
+                filter-f2_table-f2_column : [e, f]
+            }
+        ------
+        json structure:
+            {
+                'search_words': [a, b, ...],
+                'filter': [
+                    {'table': 'f1_table', 'column': 'f1_column', 'values':  [c, d, ...]},
+                    {'table': 'f2_table', 'column': 'f2_column', 'values':  [e, f, ...]},
+                    ...
+                ]
+            }
+        ------
+        search_range:
+            {
+                'contact': ['first_name'(x), 'last_name' (y), ...],
+                ...
+            }
+        ------
+        sql query:
+            SELECT contact.id
+            FROM contact
+            LEFT JOIN address ON contact.id = address.contact_id
+            LEFT JOIN phone ON contact.id = phone.contact_id
+            LEFT JOIN study ON contact.id = study.contact_id
+            INNER JOIN member ON contact.id = member.contact_id
+            INNER JOIN ressort ON member.ressort = ressort.id
+            WHERE
+                (
+                    f1_table.f1_column = a OR
+                    f1_table.f1_column = b OR
+                    ...
+                ) AND
+                (
+                    f2_table.f2_column = c OR
+                    f2_table.f2_column = d OR
+                    ...
+                ) AND
+                ... AND
+                (
+                    ( x LIKE %a% AND y LIKE %b% AND ... ) OR
+                    ( x LIKE %a% AND y LIKE %b% AND ... ) OR
+                    ...
+                )
+            ORDER BY
+                s1_table.s1_column DESC,
+                s2_table.s2_column ASC,
+                ...
+                contact.id;
+        ------
+        return select_contacts_for_ids(ids)
+        """
         pass
-    
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     #                        UPDATE METHODS
