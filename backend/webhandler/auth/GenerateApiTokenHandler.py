@@ -42,7 +42,7 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
         """
         query = "SELECT * FROM `users` WHERE username=?;"
         userdata = self.context.database.get_single_value_by_query(query, (username,))
-        if userdata is not None:
+        if userdata is None:
             return True
         return False
     
