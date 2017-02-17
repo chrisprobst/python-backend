@@ -24,6 +24,51 @@ class ContactController(object):
     DELETE_BY_ID_QUERY = "DELETE FROM `{table}` WHERE {id}=?;"
     QUERY_SELECT_ALL_CONTACT_IDS = "SELECT id FROM `contact`;"
     
+    SEARCH_QUERY_PARTIAL_1 = "{table}.{column} = ?"
+    SEARCH_QUERY_PARTIAL_2 = "({partial_1})"
+    SEARCH_QUERY_SEARCH_RANGE = "( x LIKE %a% AND y LIKE %b% AND ... )"
+    
+    filteres = """
+    (
+        (
+            (table.col1=value) OR (table.col1=value) OR ...
+        )
+        AND
+        (
+            (table.col2=value) OR (table.col2=value) OR ...
+        )
+        ...
+        AND
+        (
+            (table.col_n=value) OR ...
+        )
+    """
+    
+    search_range_statement = """
+    (
+        (col1 LIKE %word1% AND col1 LIKE %word2% AND ... AND col1 LIKE %word_n%)
+        OR
+        ...
+    )
+    """
+    
+    
+    SEARCH_QUERY = """
+        SELECT contact.id
+        FROM contact
+        LEFT JOIN address ON contact.id = address.contact_id
+        LEFT JOIN phone ON contact.id = phone.contact_id
+        LEFT JOIN study ON contact.id = study.contact_id
+        INNER JOIN member ON contact.id = member.contact_id
+        INNER JOIN ressort ON member.ressort = ressort.id
+        WHERE
+                {filters}
+            AND
+                {search_range_statements}
+        ORDER BY
+            contact.id;
+    """
+    
     DUMMY_CONTACT_DATA = {
         "contact": {
             "prefix": "Herr",
@@ -45,7 +90,7 @@ class ContactController(object):
             {"status": "done", "school": "HHU", "course": "Informatik", "start": "dd.mm.yyyy", "end": "dd.mm.yyyy", "focus": "Netzwerksicherheit", "degree": "b_a"}
         ]
     }
-    
+
     @staticmethod
     def _columns_are_invalid_for_table(columns, table):
         valid_columns = ContactController.TABLE_COLUMNS[table]
@@ -273,35 +318,7 @@ class ContactController(object):
             }
         ------
         sql query:
-            SELECT contact.id
-            FROM contact
-            LEFT JOIN address ON contact.id = address.contact_id
-            LEFT JOIN phone ON contact.id = phone.contact_id
-            LEFT JOIN study ON contact.id = study.contact_id
-            INNER JOIN member ON contact.id = member.contact_id
-            INNER JOIN ressort ON member.ressort = ressort.id
-            WHERE
-                (
-                    f1_table.f1_column = a OR
-                    f1_table.f1_column = b OR
-                    ...
-                ) AND
-                (
-                    f2_table.f2_column = c OR
-                    f2_table.f2_column = d OR
-                    ...
-                ) AND
-                ... AND
-                (
-                    ( x LIKE %a% AND y LIKE %b% AND ... ) OR
-                    ( x LIKE %a% AND y LIKE %b% AND ... ) OR
-                    ...
-                )
-            ORDER BY
-                s1_table.s1_column DESC,
-                s2_table.s2_column ASC,
-                ...
-                contact.id;
+
         ------
         return select_contacts_for_ids(ids)
         """
