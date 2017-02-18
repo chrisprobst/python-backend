@@ -3,6 +3,9 @@ import sqlite3
 
 class Database(object):
     
+    # TODO: Read 'https://docs.python.org/2/library/sqlite3.html' 11.13.7 "Using sqlite3 eficiently"
+    # TODO: To avoid custom commit/rollback checks and use sqlite3.Row to access rows easier
+    
     def __init__(self, path, logger):
         self.logger = logger
         self.logger.info("Create database connection to: {path}".format(path=path))
@@ -46,7 +49,7 @@ class Database(object):
                 `contact_id` INTEGER REFERENCES contact(id),
                 `description` TEXT,
                 `street` TEXT,
-                `number` INTEGER(8),
+                `number` TEXT,
                 `addr_extra` TEXT,
                 `postal` TEXT,
                 `city` TEXT
@@ -71,7 +74,7 @@ class Database(object):
             """CREATE TABLE IF NOT EXISTS `member` (
                 `contact_id` INTEGER PRIMARY KEY REFERENCES contact(id),
                 `ressort` TEXT,
-                `active` INTEGER(1),
+                `active` INTEGER,
                 `position` TEXT,
                 `joined` DATE,
                 `left` DATE
