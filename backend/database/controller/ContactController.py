@@ -1,5 +1,6 @@
 #! /usr/bin/python
 # -*- coding: iso-8859-1 -*-
+import itertools
 
 
 class ContactController(object):
@@ -14,7 +15,14 @@ class ContactController(object):
         "address": ["contact_id", "description", "street", "number", "addr_extra", "postal", "city"],
         "study": ["contact_id", "status", "school", "course", "start", "end", "focus", "degree"]
     }
-    
+
+    SEARCH_RANGE = {
+        'contact': ['first_name', 'last_name'],
+        'address': ['street', 'city', 'postal'],
+        'phone': ['number']
+    }
+
+
     # TODO: Export to BaseController
     SELECT_QUERY = "SELECT {columns} FROM `{table}` WHERE {filter};"
     SELECT_QUERY_NO_WHERE = "SELECT {columns} FROM `{table}`;"
@@ -291,7 +299,7 @@ class ContactController(object):
         return list(all_contact_ids)
     
     # TODO: NO HANDLER YET!
-    def select_contacts_by_search(self, json):
+    def select_contacts_by_search(self, search_data):
         # TODO: NOT IMPLEMENTED YET
         """
         post structure
@@ -301,28 +309,56 @@ class ContactController(object):
                 filter-f2_table-f2_column : [e, f]
             }
         ------
-        json structure:
-            {
-                'search_words': [a, b, ...],
-                'filter': [
-                    {'table': 'f1_table', 'column': 'f1_column', 'values':  [c, d, ...]},
-                    {'table': 'f2_table', 'column': 'f2_column', 'values':  [e, f, ...]},
-                    ...
-                ]
-            }
-        ------
-        search_range:
-            {
-                'contact': ['first_name'(x), 'last_name' (y), ...],
+        search_data: {
+            'search_words': [a, b, ...],
+            'filter': [
+                {'table': 'f1_table', 'column': 'f1_column', 'values':  [c, d, ...]},
+                {'table': 'f2_table', 'column': 'f2_column', 'values':  [e, f, ...]},
                 ...
-            }
-        ------
-        sql query:
-
-        ------
-        return select_contacts_for_ids(ids)
+            ]
+        }
         """
-        pass
+
+        # filter results
+        results = []
+        for filter in search_data['filter']:
+            wheres = []
+            values = []
+            for value in filter['values']:
+                wheres.append("{column} = ?".format(table=filter['table'], column=filter['column']))
+                values.append(filter['values'])
+            where = " OR ".join(wheres)
+            query = ContactController.SELECT_QUERY.format(
+                columns='contact_id',
+                table=filter['table'],
+                filter=where
+            )
+            results.append(set(self.database.cursor.execute(query, values)['']))
+
+        # search words results
+        for word in search_data['search_words']:
+            word_results = []
+            for table_name, columns in self.SEARCH_RANGE:
+                wheres = []
+                for column in columns:
+                    wheres.append("{table}.{column} LIKE %?%".format(table=table_name, column=column))
+                where = " OR ".join(wheres)
+                target = 'id' if table_name == 'contact' else 'contact_id'
+                query = ContactController.SELECT_QUERY.format(
+                    columns=target,
+                    table=table_name,
+                    filter=where
+                )
+                word_results.append(set(self.database.cursor.execute(query, word)['target']))
+            # merge all results for one word (OR)
+            merged_word_results = list(itertools.chain.from_iterable(word_results))
+            results.append(set(merged_word_results))
+
+        # intersection of all results (AND)
+        contact_ids = set(results[0]).intersection(*results[:1])
+
+        # return contacts for contact_ids
+        return self.select_contacts_for_ids(contact_ids)
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
