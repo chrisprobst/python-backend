@@ -325,7 +325,7 @@ class ContactController(object):
             wheres = []
             values = []
             for value in filter['values']:
-                wheres.append("{column} = ?".format(table=filter['table'], column=filter['column']))
+                wheres.append("{table}.{column} = ?".format(table=filter['table'], column=filter['column']))
                 values.append(filter['values'])
             where = " OR ".join(wheres)
             query = ContactController.SELECT_QUERY.format(
@@ -333,7 +333,8 @@ class ContactController(object):
                 table=filter['table'],
                 filter=where
             )
-            results.append(set(self.database.cursor.execute(query, values)['']))
+            self.database.cursor.execute(query, values)
+            results.append(set([item[0] for item in self.database.cursor.fetchall()]))
 
         # search words results
         for word in search_data['search_words']:
