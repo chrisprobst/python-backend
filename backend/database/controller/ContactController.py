@@ -318,19 +318,20 @@ class ContactController(object):
             ]
         }
         """
-
+        # TODO: prevent tables and columns from SQL injection
         # filter results
         results = []
         for filter in search_data['filter']:
             wheres = []
-            values = []
-            for value in filter['values']:
+            values = filter["values"]
+            for i in range(len(filter['values'])):
                 wheres.append("{table}.{column} = ?".format(table=filter['table'], column=filter['column']))
-                values.append(filter['values'])
             where = " OR ".join(wheres)
+            table_name = filter['table']
+            target = 'id' if table_name == 'contact' else 'contact_id'
             query = ContactController.SELECT_QUERY.format(
-                columns='contact_id',
-                table=filter['table'],
+                columns=target,
+                table=table_name,
                 filter=where
             )
             self.database.cursor.execute(query, values)
@@ -350,7 +351,9 @@ class ContactController(object):
                     table=table_name,
                     filter=where
                 )
-                word_results.append(set(self.database.cursor.execute(query, word)['target']))
+                self.database.cursor.execute(query, word)
+                results = [ item[0] for item in self.database.cursor.fetchall() ]
+                word_results.append(set(results))
             # merge all results for one word (OR)
             merged_word_results = list(itertools.chain.from_iterable(word_results))
             results.append(set(merged_word_results))
@@ -515,3 +518,20 @@ class ContactController(object):
         self.database.cursor.execute(query)
         if commit:
             self.database.commit()
+
+# for simple tests
+if __name__ == "__main__":
+    from backend.database.Database import Database
+    import logging
+    path = "../../../myDatabase.db"
+    d = Database(path, logging.getLogger("test"))
+    ctr = ContactController(d)
+    search_data = {
+        'search_words': ['alex', 'daniel'],
+        'filter': [
+            {'table': '); DROP *', 'column': 'prefix', 'values':  ['Frau']},
+            {'table': 'f2_table', 'column': 'f2_column', 'values':  ['e', 'f']},
+        ]
+    }
+    ctr.select_contacts_by_search(search_data)
+    print "done"
