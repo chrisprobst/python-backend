@@ -340,10 +340,12 @@ class ContactController(object):
         # search words results
         for word in search_data['search_words']:
             word_results = []
-            for table_name, columns in self.SEARCH_RANGE:
+            for table_name, columns in self.SEARCH_RANGE.iteritems():
                 wheres = []
+                args = []
                 for column in columns:
-                    wheres.append("{table}.{column} LIKE %?%".format(table=table_name, column=column))
+                    wheres.append("{table}.{column} LIKE ?".format(table=table_name, column=column))
+                    args.append(word)
                 where = " OR ".join(wheres)
                 target = 'id' if table_name == 'contact' else 'contact_id'
                 query = ContactController.SELECT_QUERY.format(
@@ -351,9 +353,8 @@ class ContactController(object):
                     table=table_name,
                     filter=where
                 )
-                self.database.cursor.execute(query, word)
-                results = [ item[0] for item in self.database.cursor.fetchall() ]
-                word_results.append(set(results))
+                self.database.cursor.execute(query, args)
+                word_results.append(set([item[0] for item in self.database.cursor.fetchall()]))
             # merge all results for one word (OR)
             merged_word_results = list(itertools.chain.from_iterable(word_results))
             results.append(set(merged_word_results))
@@ -527,11 +528,14 @@ if __name__ == "__main__":
     d = Database(path, logging.getLogger("test"))
     ctr = ContactController(d)
     search_data = {
-        'search_words': ['alex', 'daniel'],
+        'search_words': ['daniel'],
         'filter': [
-            {'table': '); DROP *', 'column': 'prefix', 'values':  ['Frau']},
-            {'table': 'f2_table', 'column': 'f2_column', 'values':  ['e', 'f']},
+            {'table': 'contact', 'column': 'prefix', 'values': ['Frau']}
         ]
     }
-    ctr.select_contacts_by_search(search_data)
+    results = ctr.select_contacts_by_search(search_data)
     print "done"
+    for contact in results:
+        for row in contact.items():
+            print row
+        print "\n"
