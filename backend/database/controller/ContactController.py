@@ -15,6 +15,16 @@ class ContactController(object):
         "study": ["contact_id", "status", "school", "course", "start", "end", "focus", "degree"]
     }
     
+    CONTACT_PROFILE = {
+        'primary': {'table': 'contact', 'column': 'id'},
+        'rows': {
+            'mail': {'key': 'contact_id', 'multiple': True},
+            'phone': {'key': 'contact_id', 'multiple': True},
+            'address': {'key': 'contact_id', 'multiple': True},
+            'study': {'key': 'contact_id', 'multiple': True},
+            'member': {'key': 'contact_id', 'multiple': False}
+        }
+    }
     # TODO: Export to BaseController
     SELECT_QUERY = "SELECT {columns} FROM `{table}` WHERE {filter};"
     SELECT_QUERY_NO_WHERE = "SELECT {columns} FROM `{table}`;"
@@ -64,6 +74,24 @@ class ContactController(object):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     
+    def base_create_profile(self, profile, data, commit=True):
+        try:
+            primary_table = profile['primary']['table']
+            profile_key = self._insert_json_in_table(data[primary_table], primary_table)
+            for table, row in profile['rows']:
+                if not row['multiple']:
+                    data[table][0] = data[table]
+                for element in data[table]:
+                    key = profile['rows'][table]['key']
+                    element[key] = profile_key
+                    self._insert_json_in_table(element, table)
+            if commit:
+                self.database.commit()
+            return profile_key
+        except BaseException, e:
+            self.database.rollback()
+            raise e
+
     # TODO: Check if commit field is in every method
     def create_contact(self, contact, commit=True):
         """
@@ -75,27 +103,31 @@ class ContactController(object):
         :param commit: (bool) If true, all changes will be committed at the end of the function call
         :return: (int) The generated contact id for the new contact record
         """
-        try:
-            contact_id = self._insert_json_in_table(contact["contact"], "contact")
-            for mail in contact["mail"]:
-                mail["contact_id"] = contact_id
-                self._insert_json_in_table(mail, "mail")
-            for address in contact["address"]:
-                address["contact_id"] = contact_id
-                self._insert_json_in_table(address, "address")
-            for phone in contact["phone"]:
-                phone["contact_id"] = contact_id
-                self._insert_json_in_table(phone, "phone")
-            for study in contact["study"]:
-                study["contact_id"] = contact_id
-                self._insert_json_in_table(study, "study")
-            if commit:
-                self.database.commit()
-            return contact_id
-        except BaseException, e:
-            self.database.rollback()
-            raise e
     
+        self.base_create_profile(self.CONTACT_PROFILE, contact, commit)
+
+        # try:
+        #     contact_id = self._insert_json_in_table(contact["contact"], "contact")
+        #     for mail in contact["mail"]:
+        #         mail["contact_id"] = contact_id
+        #         self._insert_json_in_table(mail, "mail")
+        #     for address in contact["address"]:
+        #         address["contact_id"] = contact_id
+        #         self._insert_json_in_table(address, "address")
+        #     for phone in contact["phone"]:
+        #         phone["contact_id"] = contact_id
+        #         self._insert_json_in_table(phone, "phone")
+        #     for study in contact["study"]:
+        #         study["contact_id"] = contact_id
+        #         self._insert_json_in_table(study, "study")
+
+        #     if commit:
+        #         self.database.commit()
+        #     return contact_id
+
+        # except BaseException, e:
+        #     self.database.rollback()
+        #     raise e
     def create_contacts(self, contacts):
         """
         Expects a list of contact structures and calls create_contact() on each of them.
