@@ -1,6 +1,10 @@
 #! /usr/bin/python
 # -*- coding: iso-8859-1 -*-
 
+import itertools
+
+from backend.database.controller import BaseController
+
 
 class ContactController(object):
     
@@ -25,6 +29,7 @@ class ContactController(object):
             'member': {'key': 'contact_id', 'multiple': False}
         }
     }
+
     # TODO: Export to BaseController
     SELECT_QUERY = "SELECT {columns} FROM `{table}` WHERE {filter};"
     SELECT_QUERY_NO_WHERE = "SELECT {columns} FROM `{table}`;"
@@ -67,30 +72,13 @@ class ContactController(object):
     # TODO: Database will be passed to BaseController
     def __init__(self, database):
         self.database = database
+        self.base = BaseController.BaseController
     
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     #                        CREATE METHODS
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    
-    def base_create_profile(self, profile, data, commit=True):
-        try:
-            primary_table = profile['primary']['table']
-            profile_key = self._insert_json_in_table(data[primary_table], primary_table)
-            for table, row in profile['rows']:
-                if not row['multiple']:
-                    data[table][0] = data[table]
-                for element in data[table]:
-                    key = profile['rows'][table]['key']
-                    element[key] = profile_key
-                    self._insert_json_in_table(element, table)
-            if commit:
-                self.database.commit()
-            return profile_key
-        except BaseException, e:
-            self.database.rollback()
-            raise e
 
     # TODO: Check if commit field is in every method
     def create_contact(self, contact, commit=True):
@@ -103,31 +91,8 @@ class ContactController(object):
         :param commit: (bool) If true, all changes will be committed at the end of the function call
         :return: (int) The generated contact id for the new contact record
         """
-    
-        self.base_create_profile(self.CONTACT_PROFILE, contact, commit)
+        return self.base.create_profile(ContactController.CONTACT_PROFILE, contact, commit)
 
-        # try:
-        #     contact_id = self._insert_json_in_table(contact["contact"], "contact")
-        #     for mail in contact["mail"]:
-        #         mail["contact_id"] = contact_id
-        #         self._insert_json_in_table(mail, "mail")
-        #     for address in contact["address"]:
-        #         address["contact_id"] = contact_id
-        #         self._insert_json_in_table(address, "address")
-        #     for phone in contact["phone"]:
-        #         phone["contact_id"] = contact_id
-        #         self._insert_json_in_table(phone, "phone")
-        #     for study in contact["study"]:
-        #         study["contact_id"] = contact_id
-        #         self._insert_json_in_table(study, "study")
-
-        #     if commit:
-        #         self.database.commit()
-        #     return contact_id
-
-        # except BaseException, e:
-        #     self.database.rollback()
-        #     raise e
     def create_contacts(self, contacts):
         """
         Expects a list of contact structures and calls create_contact() on each of them.
@@ -135,16 +100,7 @@ class ContactController(object):
         :param contacts: ([dict]) A list of contact structures
         :return: ([int]) A list of the respective contact ids
         """
-        contact_ids = []
-        try:
-            for contact in contacts:
-                new_contact_id = self.create_contact(contact, commit=False)
-                contact_ids.append(new_contact_id)
-            self.database.commit()
-            return contact_ids
-        except BaseException, e:
-            self.database.rollback()
-            raise e
+        return self.base.create_profiles(ContactController.CONTACT_PROFILE, contacts)
     
     # TODO: Shouldn't stay for ever
     def create_dummy_contact(self):
@@ -168,35 +124,16 @@ class ContactController(object):
         :param contact_id: (int) The contact id to fetch from the database
         :return: (dict) The matching contact structure or an empty dictionary
         """
-        id_filter = "id={id}".format(id=contact_id)
-        contact_id_filter = "contact_id={id}".format(id=contact_id)
-        result_contact = self._select_named_data(["*"], "contact", id_filter)
-        result_mail = self._select_named_data(["*"], "mail", contact_id_filter)
-        result_phone = self._select_named_data(["*"], "phone", contact_id_filter)
-        result_address = self._select_named_data(["*"], "address", contact_id_filter)
-        result_study = self._select_named_data(["*"], "study", contact_id_filter)
-        if len(result_contact) != 1:
-            return {}
-        contact = {
-            "contact": result_contact[0],
-            "mail": result_mail,
-            "phone": result_phone,
-            "address": result_address,
-            "study": result_study
-        }
-        return contact
+        return self.base.select_profile_for_id(contact_id)
     
-    def select_contacts_for_ids(self, ids):
+    def select_contacts_for_ids(self, contact_ids):
         """
         Select multiple contact structures for a given list of IDs.
         
         :param ids: ([int]) List of contact ids to fetch from the database
         :return: ([dict]) A list of matching contact structures (can contain empty dicts for not matching IDs)
         """
-        contacts = []
-        for contact_id in ids:
-            contacts.append(self.select_contact_for_id(contact_id))
-        return contacts
+        return self.base.select_profiles_for_ids(contact_ids)
     
     def select_all_contact_ids(self):
         """
@@ -204,9 +141,7 @@ class ContactController(object):
         
         :return: ([int]) A list of all existing contact IDs
         """
-        self.database.cursor.execute(ContactController.QUERY_SELECT_ALL_CONTACT_IDS)
-        contact_ids = [result[0] for result in self.database.cursor.fetchall()]
-        return contact_ids
+        return self.base.select_all_profile_ids(ContactController.CONTACT_PROFILE)
     
     def select_all_contacts(self):
         """
@@ -214,8 +149,7 @@ class ContactController(object):
         
         :return: ([dict])  A list of all contact structures
         """
-        contact_ids = self.select_all_contact_ids()
-        return self.select_contacts_for_ids(contact_ids)
+        return self.base.select_all_profiles(ContactController.CONTACT_PROFILE)
     
     # TODO: NO HANDLER YET!
     def select_contact_ids_by_filter(self, contact_filter):
