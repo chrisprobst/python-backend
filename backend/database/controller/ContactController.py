@@ -26,6 +26,7 @@ class ContactController(object):
     # TODO: Export to BaseController
     SELECT_QUERY = "SELECT {columns} FROM `{table}` WHERE {filter};"
     SELECT_QUERY_NO_WHERE = "SELECT {columns} FROM `{table}`;"
+    SELECT_QUERY_DISTINCT = "SELECT DISTINCT {columns} FROM `{table}` ORDER BY {columns};"
     INSERT_QUERY = "INSERT INTO `{table}` ({columns}) VALUES ({placeholders});"
     UPDATE_QUERY = "UPDATE `{table}` SET {updates} WHERE {filter};"
     DELETE_QUERY = "DELETE FROM `{table}` WHERE {filter};"
@@ -297,10 +298,8 @@ class ContactController(object):
         if contact_filter["contact"]["filter"]:
             all_contact_ids = all_contact_ids.intersection(result_contact_ids)
         return list(all_contact_ids)
-    
-    # TODO: NO HANDLER YET!
+
     def select_contacts_by_search(self, search_data):
-        # TODO: NOT IMPLEMENTED YET
         """
         post structure
             {
@@ -368,6 +367,29 @@ class ContactController(object):
 
         # return contacts for contact_ids
         return self.select_contacts_for_ids(contact_ids)
+
+    def select_filter_values(self, filter):
+        """
+        :param filter: (json) filters without values
+            [
+                {
+                    'title': 'Studienfach',
+                    'table': 'study',
+                    'column': 'course',
+                    'values': []
+                },
+                ...
+            ];
+        :return: filter with values
+        """
+        for i in range(len(filter)):
+            query = ContactController.SELECT_QUERY_DISTINCT.format(
+                columns=filter[i]['column'],
+                table=filter[i]['table'],
+            )
+            self.database.cursor.execute(query)
+            filter[i]['values'] = ([item[0] for item in self.database.cursor.fetchall()])
+        return filter
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
