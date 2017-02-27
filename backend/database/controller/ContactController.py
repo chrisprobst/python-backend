@@ -360,8 +360,11 @@ class ContactController(object):
                 merged_word_results = list(itertools.chain.from_iterable(word_results))
                 results.append(set(merged_word_results))
 
-        # intersection of all results (AND)
-        contact_ids = set.intersection(*results)
+        if len(results) > 0:
+            # intersection of all results (AND)
+            contact_ids = set.intersection(*results)
+        else:
+            contact_ids = self.select_all_contact_ids()
 
         # return contacts for contact_ids
         return self.select_contacts_for_ids(contact_ids)
