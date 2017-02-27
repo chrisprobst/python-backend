@@ -339,25 +339,26 @@ class ContactController(object):
 
         # search words results
         for word in search_data['search_words']:
-            word_results = []
-            for table_name, columns in self.SEARCH_RANGE.iteritems():
-                wheres = []
-                args = []
-                for column in columns:
-                    wheres.append("{table}.{column} LIKE ?".format(table=table_name, column=column))
-                    args.append(word)
-                where = " OR ".join(wheres)
-                target = 'id' if table_name == 'contact' else 'contact_id'
-                query = ContactController.SELECT_QUERY.format(
-                    columns=target,
-                    table=table_name,
-                    filter=where
-                )
-                self.database.cursor.execute(query, args)
-                word_results.append(set([item[0] for item in self.database.cursor.fetchall()]))
-            # merge all results for one word (OR)
-            merged_word_results = list(itertools.chain.from_iterable(word_results))
-            results.append(set(merged_word_results))
+            if word:
+                word_results = []
+                for table_name, columns in self.SEARCH_RANGE.iteritems():
+                    wheres = []
+                    args = []
+                    for column in columns:
+                        wheres.append("{table}.{column} LIKE ?".format(table=table_name, column=column))
+                        args.append(word)
+                    where = " OR ".join(wheres)
+                    target = 'id' if table_name == 'contact' else 'contact_id'
+                    query = ContactController.SELECT_QUERY.format(
+                        columns=target,
+                        table=table_name,
+                        filter=where
+                    )
+                    self.database.cursor.execute(query, args)
+                    word_results.append(set([item[0] for item in self.database.cursor.fetchall()]))
+                # merge all results for one word (OR)
+                merged_word_results = list(itertools.chain.from_iterable(word_results))
+                results.append(set(merged_word_results))
 
         # intersection of all results (AND)
         contact_ids = set.intersection(*results)
