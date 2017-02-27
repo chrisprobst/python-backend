@@ -21,6 +21,7 @@ from webhandler.contact import SelectAllContactsHandler
 from webhandler.contact import UpdateContactHandler
 from webhandler.contact import DeleteContactHandler
 from webhandler.contact import SelectContactsBySearchHandler
+from webhandler.contact import SelectFilterValuesHandler
 
 stdout_log_format = "%(asctime)s [%(threadName)-12.12s] [%(levelname)-8.8s]  %(message)s"
 tornado_log_format = "%(asctime)s [Tornado     ] [%(levelname)-8.8s]  %(message)s"
@@ -75,6 +76,7 @@ def start_tornado(ctx):
         (r"/api/contact/updateContact", UpdateContactHandler.UpdateContactHandler, {"context": ctx}),
         (r"/api/contact/deleteContact", DeleteContactHandler.DeleteContactHandler, {"context": ctx}),
         (r"/api/contact/selectContactsBySearch", SelectContactsBySearchHandler.SelectContactsBySearchHandler, {"context": ctx}),
+        (r"/api/contact/selectFilterValues", SelectFilterValuesHandler.SelectFilterValuesHandler, {"context": ctx}),
         # (r"/logout", LogoutHandler.LogoutHandler, {"context": ctx}),
         # (r"/confirm", ConfirmHandler.ConfirmHandler, {"context": ctx}),
         # (r"/(.*.png)", tornado.web.StaticFileHandler, {"path": "img/"})

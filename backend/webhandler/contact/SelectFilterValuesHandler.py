@@ -11,22 +11,20 @@ from backend.database.controller import ContactController
 import traceback
 
 
-class SelectContactForIdHandler(ApiHandler.ApiHandler):
+class SelectFilterValuesHandler(ApiHandler.ApiHandler):
 
     def post(self):
         """
-        Post handler for SelectContactForIdHandler
+        Post handler for SelectFilterValuesHandler
         :return: (none)
         """
         if self.api_token_is_invalid():
             self.write_invalid_api_token_response()
             return
         data = tornado.escape.json_decode(self.get_argument("data"))
-        # TODO: At least wrap with try/except!
-        contact_id = data["contact_id"]
         ctr = ContactController.ContactController(self.context.database)
         try:
-            result = ctr.select_contact_for_id(contact_id)
+            result = ctr.select_filter_values(data)
             self.write_success_response(result)
         except BaseException, e:
             print traceback.format_exc()
