@@ -345,7 +345,7 @@ class ContactController(object):
                     args = []
                     for column in columns:
                         wheres.append("{table}.{column} LIKE ?".format(table=table_name, column=column))
-                        args.append(word)
+                        args.append('%' + word + '%')
                     where = " OR ".join(wheres)
                     target = 'id' if table_name == 'contact' else 'contact_id'
                     query = ContactController.SELECT_QUERY.format(
