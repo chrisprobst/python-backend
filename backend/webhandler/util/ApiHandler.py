@@ -18,7 +18,10 @@ class ApiHandler(BaseHandler.BaseHandler):
         if self.api_token_is_invalid():
             self.write_invalid_api_token_response()
             return
-        data = tornado.escape.json_decode(self.get_argument("data"))
+        try:
+            data = tornado.escape.json_decode(self.get_argument("data"))
+        except BaseException:
+            data = ''
         try:
             if data_key:
                 data = data[data_key]
