@@ -1,7 +1,7 @@
-import json
+#! /usr/bin/python
+# -*- coding: iso-8859-1 -*-
 
-import tornado.web
-import tornado.escape
+import json
 
 from backend.webhandler.util import ApiHandler
 from backend.database.controller import ContactController
@@ -14,22 +14,5 @@ class UpdateContactHandler(ApiHandler.ApiHandler):
         Post handler for UpdateContactForIdHandler
         :return: (none)
         """
-        if self.api_token_is_invalid():
-            self.write_invalid_api_token_response()
-            return
-        data = tornado.escape.json_decode(self.get_argument("data"))
         ctr = ContactController.ContactController(self.context.database)
-        try:
-            ctr.update_contact(data)
-            self.write_success_response()
-        except BaseException, e:
-            self.write_error_response(e)
-    
-    def write_success_response(self):
-        """
-        TODO: remove this method to parent class
-        """
-        data = {
-            "error": None
-        }
-        self.write(json.dumps(data))
+        self.api_post(ctr.update_contact)
