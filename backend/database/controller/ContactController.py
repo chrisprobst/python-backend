@@ -3,7 +3,7 @@
 
 import itertools
 
-from backend.database.controller import BaseController
+from backend.database.controller.BaseController import BaseController
 
 
 class ContactController(object):
@@ -72,7 +72,7 @@ class ContactController(object):
     # TODO: Database will be passed to BaseController
     def __init__(self, database):
         self.database = database
-        self.base = BaseController.BaseController
+        self.base = BaseController
     
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

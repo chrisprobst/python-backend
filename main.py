@@ -8,5 +8,5 @@ from backend.start_webserver import start_webserver
 start_webserver(
     "default_config.json",
     "myDatabase.db",
-    ""
+    "log"
 )

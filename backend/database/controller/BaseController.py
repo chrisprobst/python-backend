@@ -1,10 +1,53 @@
 # coding=utf-8
 
+"""
+
+TODOS:
+- add simple db operations
+- add JSON compatible interfaces
+- refactor ContractController
+
+insert:
+insert_into_table(table, data)
+
+
+DATABASE INFORMATION AS JSON:
+data = {
+    table1: {
+        column1: value1,
+        column2: value2,
+        ...
+    },
+    table2: {
+        column1: value1,
+        column2: value2,
+        ...
+    },
+    ...
+}
+
+VOCABULARY
+
+DATABASE ROW or ROW or ROW DATASET:
+----------------------------------
+row = {
+    column: value,
+    column: value,
+    ...
+}
+
+"""
+
+
 class BaseController(object):
     
-    QUERY_INSERT = "INSERT INTO {table} {columns} VALUES ({placeholders})"
+    QUERY_INSERT = "INSERT INTO {table} {columns} VALUES ({placeholders});"
+    QUERY_SELECT = "SELECT * FROM {table} WHERE {column}=?;"
     
     MSG_ERROR_INSERT = "Insert query \"{query}\" with values ({values}) returned error: {error}"
+    MSG_ERROR_SELECT = "Select query \"{query}\" with values ({values}) returned error: {error}"
+    
+    MSG_DEBUG_SELECT = "Select query \"{query}\" with values {values} did not return any rows"
     
     @staticmethod
     def create_placeholders_for_columns(columns):
@@ -105,10 +148,45 @@ class BaseController(object):
                 values=values,
                 error=repr(e)
             ))
+            raise e
         if commit:
             self.database.commit()
+    
+    def select_data_by_single_value(self, table, column, value):
+        """
+        This method selects all columns from a table with a simple
+        equality filter for one filter column. The function call will
+        produce and execute a query in the form:
+        
+        SELECT * FROM <query> WHERE <column>=<value>;
+        
+        :param table: (str) Table name
+        :param column: (str) Name of the filter column
+        :param value:
+        :return:
+        """
+        query = BaseController.QUERY_SELECT.format(
+            table=table,
+            column=column
+        )
+        try:
+            self.database.cursor.execute(query, (value,))
+            results = self.database.cursor.fetchall()
+            if len(results) == 0:
+                self.database.logger.debug(BaseController.MSG_DEBUG_SELECT.format(
+                    query=query,
+                    values=value
+                ))
+            return results
+        except BaseException, e:
+            self.database.logger.error(BaseController.MSG_ERROR_SELECT.format(
+                query=query,
+                values=value,
+                error=repr(e)
+            ))
+            raise e
 
-# TODO: fix this shit!
+
 # Simple test
 if __name__ == "__main__":
     from backend.database.Database import Database
@@ -138,7 +216,11 @@ if __name__ == "__main__":
         ]
     }
     ctr = BaseController(dbs)
-    ctr.insert_into_database(data)
+    try:
+        ctr.insert_into_database(data)
+    except:
+        print "fehler"
+    print ctr.select_data_by_single_value("phone", "contact_id", 115)
 
 
 
