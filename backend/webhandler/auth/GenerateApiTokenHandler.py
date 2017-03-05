@@ -2,12 +2,8 @@
 # -*- coding: iso-8859-1 -*-
 
 import json
-
-from backend.webhandler.util import BaseHandler
-
 import tornado.escape
-
-from backend.webhandler.util import ApiHandler
+from backend.webhandler.util import BaseHandler
 from backend.database.controller import AuthController
 
 
@@ -18,8 +14,8 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
         Post handler of GenerateApiTokenHandler
         :return: (none)
         """
-        username = self.get_argument("username")
-        password = self.get_argument("password")
+        username = tornado.escape(self.get_argument("username"))
+        password = tornado.escape(self.get_argument("password"))
         ctr = AuthController.AuthController(self.context.database)
         try:
             api_token = ctr.check_token(username, password)
@@ -34,6 +30,11 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
                 self.write_error_response(e)
 
     def write_error_response(self, e):
+        """
+        Writes a JSON answer with an error message
+        :param e: The given error to print
+        :return: (none)
+        """
         data = {
             "error": repr(e)
         }

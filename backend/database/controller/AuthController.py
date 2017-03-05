@@ -1,10 +1,7 @@
 #! /usr/bin/python
 # -*- coding: iso-8859-1 -*-
 
-import json
 import os
-
-from backend.webhandler.util import BaseHandler
 from backend.webhandler.util import PasshashVerifier
 
 class AuthController(object):
@@ -18,6 +15,12 @@ class AuthController(object):
         return os.urandom(128).encode('hex')
 
     def check_token(self, username, password):
+        """
+        Checks the given username and password against the database, returns an api_token if successful
+        :param username: (str) The username to authenticate
+        :param password:  (str) The transmitted password to check
+        :return: (str)
+        """
         if self.is_invalid_username(username):
             raise Exception("InvalidUser")
         elif self.is_invalid_password(username, password):
