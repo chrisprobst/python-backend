@@ -1,123 +1,146 @@
-#! /usr/bin/python
-# -*- coding: iso-8859-1 -*-
-
-import
+# coding=utf-8
 
 class BaseController(object):
-
+    
+    QUERY_INSERT = "INSERT INTO {table} {columns} VALUES ({placeholders})"
+    
+    MSG_ERROR_INSERT = "Insert query \"{query}\" with values ({values}) returned error: {error}"
+    
+    @staticmethod
+    def create_placeholders_for_columns(columns):
+        """
+        Given a collection of columns [c_1, ..., c_n] this methods returns a
+        string of sqlite3 placeholders "?, ..., ?" to insert into a query
+        
+        :param columns: (iterable) A collection of column names
+        :return: (str) Placeholders to insert into a query
+        """
+        return ",".join("?"*len(columns))
+    
+    @staticmethod
+    def extract_table_data(data):
+        """
+        Given a row dataset
+        
+        {
+            column1: value1,
+            column2: value2,
+            ...
+        }
+        
+        This method extrcts and returns the columns as a list, the values as a list
+        and a pre-computed string of placeholders to insert into a query.
+        
+        :param data: (dict) A table dataset
+        :return: (tuple) (columns, values, placeholders)
+        """
+        columns = tuple(data.keys())
+        values = tuple(data.values())
+        placeholders = BaseController.create_placeholders_for_columns(columns)
+        return columns, values, placeholders
+    
     def __init__(self, database):
         self.database = database
-
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    #                        CREATE METHODS
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-    def create_profile(self, profile, data, commit=True):
+    
+    def insert_into_database(self, data):
         """
-        Creates a new profile in the database given a data structure. Note: since this profile is
-        new, no "id" field in the data is required.
-
-        :param profile: (dict) A profile definition
-        :param data: (dict) A data structure for the profile (no IDs required!)
-        :param commit: (bool) If true, all changes will be committed at the end of the function call
-        :return: (int) The generated profile id for the new profile record
-        """
-        try:
-            primary_table = profile['primary']['table']
-            profile_key = self._insert_json_in_table(data[primary_table], primary_table)
-            for table, row in profile['rows']:
-                if not row['multiple']:
-                    data[table][0] = data[table]
-                for element in data[table]:
-                    key = profile['rows'][table]['key']
-                    element[key] = profile_key
-                    self._insert_json_in_table(element, table)
-            if commit:
-                self.database.commit()
-            return profile_key
-        except BaseException, e:
-            self.database.rollback()
-            raise e
-
-    def create_profiles(self, profile, data):
-        """
-        Expects a list of profile structures and calls create_profile() on each of them.
-
-        :param profile: (dict) A profile definition
-        :param data: ([dict]) A list of profile structures
-        :return: ([int]) A list of the respective profile ids
-        """
-        profile_ids = []
-        try:
-            for single_profile in data:
-                new_profile_id = self.create_profile(profile, single_profile, commit=False)
-                profile_ids.append(new_profile_id)
-            self.database.commit()
-            return profile_ids
-        except BaseException, e:
-            self.database.rollback()
-            raise e
-
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    #                        READ METHODS
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-    def select_profile_for_id(self, profile_id):
-        """
-        Select a profile structure from database for a given ID.
-
-        :param profile_id: (int) The profile id to fetch from the database
-        :return: (dict) The matching profile structure or an empty dictionary
-        """
-        id_filter = "id={id}".format(id=profile_id)
-        profile_id_filter = "profile_id={id}".format(id=profile_id)
-        result_profile = self._select_named_data(["*"], "profile", id_filter)
-        result_mail = self._select_named_data(["*"], "mail", profile_id_filter)
-        result_phone = self._select_named_data(["*"], "phone", profile_id_filter)
-        result_address = self._select_named_data(["*"], "address", profile_id_filter)
-        result_study = self._select_named_data(["*"], "study", profile_id_filter)
-        if len(result_profile) != 1:
-            return {}
-        profile = {
-            "profile": result_profile[0],
-            "mail": result_mail,
-            "phone": result_phone,
-            "address": result_address,
-            "study": result_study
+        This method will insert any number of rows into any number of tables.
+        Given a dictionary
+        
+        {
+            table1_name: [row1, row2, row3, ...],
+            table2_name: [row1, row2, ...],
+            ...
         }
-        return profile
-
-    def select_profiles_for_ids(self, profile_ids):
+        
+        this method will insert each to each table sequentially.
+        
+        NOTE:
+        - Changes will only be commited, if every insertion was successful.
+        - Changes will be aborted otherwise.
+        - If changes are aborted, this method will re-raise the original exception
+        
+        
+        :param data: (dict) Data to insert
+        :return: (None)
         """
-        Select multiple profile structures for a given list of IDs.
-
-        :param ids: ([int]) List of profile ids to fetch from the database
-        :return: ([dict]) A list of matching profile structures (can contain empty dicts for not matching IDs)
+        for table_name, rows_to_insert in data.iteritems():
+            for row in rows_to_insert:
+                self.insert_single_row_in_table(table_name, row, commit=False)
+        self.database.commit()
+    
+    def insert_single_row_in_table(self, table_name, row, commit=True):
         """
-        profiles = []
-        for profile_id in ids:
-            profiles.append(self.select_profile_for_id(profile_id))
-        return profiles
-
-    def select_all_profile_ids(self, profile):
+        Given a table name and a row dataset
+        
+        {
+            column1: value1,
+            column2: value2,
+            ...
+        }
+        
+        this method will insert the row into the table.
+        
+        NOTE:
+        - Changes will be aborted if the insertion was not successful.
+        - If changes are aborted, this method will re-raise the original exception.
+        
+        :param table_name: (str) Table name
+        :param row: (dict) The row dataset (see above)
+        :param commit: (bool) If True, changes will be commited after calling this method.
+        :return:
         """
-        Selects all existing profile IDs from the database.
+        columns, values, placeholders = BaseController.extract_table_data(row)
+        query = BaseController.QUERY_INSERT.format(
+            table=table_name,
+            columns=columns,
+            placeholders=placeholders
+        )
+        try:
+            self.database.cursor.execute(query, values)
+        except BaseException, e:
+            self.database.rollback()
+            self.database.logger.error(BaseController.MSG_ERROR_INSERT.format(
+                query=query,
+                values=values,
+                error=repr(e)
+            ))
+        if commit:
+            self.database.commit()
 
-        :return: ([int]) A list of all existing profile IDs
-        """
-        self.database.cursor.execute(BaseController.QUERY_SELECT_ALL_CONTACT_IDS)
-        profile_ids = [result[0] for result in self.database.cursor.fetchall()]
-        return profile_ids
+# TODO: fix this shit!
+# Simple test
+if __name__ == "__main__":
+    from backend.database.Database import Database
+    import logging
+    logging.basicConfig()
+    dbs = Database("../../../myDatabase.db", logging.getLogger())
+    data = {
+        "phone": [
+            {
+                "id": 100,
+                "contact_id": 10,
+                "description": "Nummer 1",
+                "number": "123456789"
+            },
+            {
+                "id": 101,
+                "contact_id": 10,
+                "description": "Nummer 2",
+                "number": "987654321"
+            },
+            {
+                "id": 102,
+                "contact_id": 11,
+                "description": "Nummer 1",
+                "number": "123456789000000000"
+            }
+        ]
+    }
+    ctr = BaseController(dbs)
+    ctr.insert_into_database(data)
 
-    def select_all_profiles(self, profile):
-        """
-        Calls select_profiles_for_ids with select_all_profile_ids() as argument.
 
-        :return: ([dict])  A list of all profile structures
-        """
-        profile_ids = self.select_all_profile_ids()
-        return self.select_profiles_for_ids(profile_ids)
+
+
+
