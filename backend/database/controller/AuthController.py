@@ -4,6 +4,7 @@
 import os
 from backend.webhandler.util import PasshashVerifier
 
+
 class AuthController(object):
 
     @staticmethod
@@ -22,9 +23,9 @@ class AuthController(object):
         :return: (str)
         """
         if self.is_invalid_username(username):
-            raise Exception("InvalidUser")
+            raise Exception("Invalid User")
         elif self.is_invalid_password(username, password):
-            raise Exception("InvalidPassword")
+            raise Exception("Invalid Password")
         else:
             api_token = self.generate_api_token()
             try:
@@ -34,7 +35,6 @@ class AuthController(object):
             except BaseException, e:
                 self.database.rollback()
                 raise e
-
 
     def __init__(self, database):
         self.database = database

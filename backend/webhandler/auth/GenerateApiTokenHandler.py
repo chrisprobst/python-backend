@@ -14,20 +14,14 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
         Post handler of GenerateApiTokenHandler
         :return: (none)
         """
-        username = tornado.escape(self.get_argument("username"))
-        password = tornado.escape(self.get_argument("password"))
+        username = self.get_argument("username")
+        password = self.get_argument("password")
         ctr = AuthController.AuthController(self.context.database)
         try:
             api_token = ctr.check_token(username, password)
             self.write_success_response(api_token)
         except BaseException, e:
-            exception_text = str(e)
-            if(exception_text == "InvalidUser"):
-                self.write_invalid_username_response()
-            elif(exception_text == "InvalidPassword"):
-                self.write_invalid_password_response()
-            else:
-                self.write_error_response(e)
+            self.write_error_response(str(e))
 
     def write_error_response(self, e):
         """
