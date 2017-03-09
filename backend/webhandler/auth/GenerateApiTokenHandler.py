@@ -30,27 +30,7 @@ class GenerateApiTokenHandler(BaseHandler.BaseHandler):
         :return: (none)
         """
         data = {
-            "error": repr(e)
-        }
-        self.write(json.dumps(data))
-
-    def write_invalid_username_response(self):
-        """
-        Writes a JSON answer with an error message (invalid username)
-        :return: (none)
-        """
-        data = {
-            "error": "Invalid username"
-        }
-        self.write(json.dumps(data))
-    
-    def write_invalid_password_response(self):
-        """
-        Writes a JSON answer with an error message (invalid password)
-        :return: (none)
-        """
-        data = {
-            "error": "Invalid password"
+            "error": e
         }
         self.write(json.dumps(data))
     
