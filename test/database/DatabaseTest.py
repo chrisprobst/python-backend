@@ -170,7 +170,3 @@ class DatabaseTest(unittest.TestCase):
     
     def _get_all_columns_for_table(self, table_name):
         return DatabaseTest.TABLES[table_name]["primary"] + DatabaseTest.TABLES[table_name]["not_primary"]
-        
-
-suite = unittest.TestLoader().loadTestsFromTestCase(DatabaseTest)
-unittest.TextTestRunner(verbosity=2).run(suite)

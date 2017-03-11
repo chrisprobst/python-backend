@@ -85,6 +85,3 @@ class ConfigTest(unittest.TestCase):
                 value=self.config.store["value_2"]
             )
         )
-
-suite = unittest.TestLoader().loadTestsFromTestCase(ConfigTest)
-unittest.TextTestRunner(verbosity=2).run(suite)
