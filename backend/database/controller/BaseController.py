@@ -134,7 +134,7 @@ class BaseController(object):
         :param table_name: (str) Table name
         :param row: (dict) The row dataset (see above)
         :param commit: (bool) If True, changes will be commited after calling this method.
-        :return:
+        :return: The generated id for the inserted row
         """
         columns, values, placeholders = BaseController.extract_table_data(row)
         query = BaseController.QUERY_INSERT.format(
@@ -154,6 +154,7 @@ class BaseController(object):
             raise e
         if commit:
             self.database.commit()
+        return self.database.cursor.lastrowid
     
     def select_rows_by_single_value(self, table, column, value):
         """
