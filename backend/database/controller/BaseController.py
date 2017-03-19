@@ -41,13 +41,14 @@ row = {
 
 class BaseController(object):
     
-    QUERY_INSERT = "INSERT INTO {table} {columns} VALUES ({placeholders});"
-    QUERY_SELECT = "SELECT * FROM {table} WHERE {column}=?;"
+    QUERY_INSERT = u"INSERT INTO {table} {columns} VALUES ({placeholders});"
+    QUERY_SELECT = u"SELECT * FROM {table} WHERE {column}=?;"
+    QUERY_SELECT_COLUMNS = u"SELECT {columns} FROM {table} WHERE {key}=?;"
     
-    MSG_ERROR_INSERT = "Insert query \"{query}\" with values ({values}) returned error: {error}"
-    MSG_ERROR_SELECT = "Select query \"{query}\" with values ({values}) returned error: {error}"
+    MSG_ERROR_INSERT = u"Insert query \"{query}\" with values ({values}) returned error: {error}"
+    MSG_ERROR_SELECT = u"Select query \"{query}\" with values ({values}) returned error: {error}"
     
-    MSG_DEBUG_SELECT = "Select query \"{query}\" with values {values} did not return any rows"
+    MSG_DEBUG_SELECT = u"Select query \"{query}\" with values {values} did not return any rows"
     
     @staticmethod
     def create_placeholders_for_columns(columns):
@@ -58,7 +59,7 @@ class BaseController(object):
         :param columns: (iterable) A collection of column names
         :return: (str) Placeholders to insert into a query
         """
-        return ",".join("?"*len(columns))
+        return u",".join(u"?"*len(columns))
     
     @staticmethod
     def extract_table_data(data):
