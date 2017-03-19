@@ -43,8 +43,10 @@ class BaseController(object):
     
     QUERY_INSERT = u"INSERT INTO {table} {columns} VALUES ({placeholders});"
     QUERY_SELECT = u"SELECT * FROM {table} WHERE {column}=?;"
-    QUERY_SELECT_COLUMNS = u"SELECT {columns} FROM {table} WHERE {key}=?;"
+    QUERY_SELECT_COLUMNS_BY_SINGLE_VALUE = u"SELECT {columns} FROM {table} WHERE {key}=?;"
     QUERY_GET_TABLE_INFO = u"PRAGMA table_info({table});"
+    QUERY_SELECT_FROM_TABLE = u"SELECT * FROM {table};"
+    QUERY_SELECT_COLUMNS = u"SELECT {columns} FROM {table};"
     
     MSG_ERROR_INSERT = u"Insert query \"{query}\" with values ({values}) returned error: {error}"
     MSG_ERROR_SELECT = u"Select query \"{query}\" with values ({values}) returned error: {error}"
@@ -160,6 +162,29 @@ class BaseController(object):
         for row in rows:
             self.insert_row_in_table(table, row, commit=commit)
     
+    def select_rows(self, table):
+        """
+        Selects all existing rows from a given table.
+
+        :param table: (str) The table to select from
+        :return: ([tuple]) A list of all existing rows
+        """
+        query = BaseController.QUERY_SELECT_FROM_TABLE.format(table=table)
+        self.database.cursor.execute(query)
+        results = self.database.cursor.fetchall()
+        return results
+    
+    def select_columns(self, table, columns):
+        self.verify_columns_for_table(table, columns)
+        arg_columns = u", ".join(columns)
+        query = BaseController.QUERY_SELECT_COLUMNS.format(
+            columns=arg_columns,
+            table=table
+        )
+        self.database.cursor.execute(query)
+        results = self.database.cursor.fetchall()
+        return results
+    
     def select_rows_by_single_value(self, table, column, value):
         """
         This method selects all columns from a table with a simple
@@ -231,7 +256,7 @@ class BaseController(object):
     def select_columns_by_single_value(self, table, columns, key, value):
         self.verify_columns_for_table(table, columns)
         arg_columns = u", ".join(columns)
-        query = BaseController.QUERY_SELECT_COLUMNS.format(
+        query = BaseController.QUERY_SELECT_COLUMNS_BY_SINGLE_VALUE.format(
             columns=arg_columns,
             table=table,
             key=key
