@@ -156,6 +156,10 @@ class BaseController(object):
             self.database.commit()
         return self.database.cursor.lastrowid
     
+    def insert_rows_in_table(self, table, rows, commit=True):
+        for row in rows:
+            self.insert_row_in_table(table, row, commit=commit)
+    
     def select_rows_by_single_value(self, table, column, value):
         """
         This method selects all columns from a table with a simple
