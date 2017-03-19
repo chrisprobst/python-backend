@@ -206,6 +206,11 @@ class BaseController(object):
                 }
             )
         return named_result
+    
+    def get_columns_for_table(self, table):
+        table_info = self.get_table_info(table)
+        print table_info
+        return [e[u"column_name"] for e in table_info]
 
 
 # Simple test
