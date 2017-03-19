@@ -67,7 +67,6 @@ class ContactController(BaseController):
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     
-    # TODO: Check if commit field is in every method
     def create_contact(self, contact, commit=True):
         """
         Creates a new contact in the database given a contact structure. Note: since this contact is
@@ -174,9 +173,8 @@ class ContactController(BaseController):
 
         :return: ([int]) A list of all existing contact IDs
         """
-        self.database.cursor.execute(ContactController.QUERY_SELECT_ALL_CONTACT_IDS)
-        contact_ids = [result[0] for result in self.database.cursor.fetchall()]
-        return contact_ids
+        all_contacts = self.select_columns("contact", "id")
+        return all_contacts
     
     def select_all_contacts(self):
         """
@@ -184,8 +182,11 @@ class ContactController(BaseController):
 
         :return: ([dict])  A list of all contact structures
         """
-        contact_ids = self.select_all_contact_ids()
-        return self.select_contacts_for_ids(contact_ids)
+        all_contacts = self.select_rows("contact")
+        # TODO: Hier werden direkt fetch Ergebnisse zurück gegeben und im
+        # TODO: folgenden als Dictionaries behandelt. Prüfe, ob das ok ist!
+        # TODO: Vllt einfach dict(...) ?
+        return all_contacts
     
     # TODO: NO HANDLER YET!
     def select_contact_ids_by_filter(self, contact_filter):
@@ -251,6 +252,11 @@ class ContactController(BaseController):
     def select_contacts_by_search(self, json):
         # TODO: NOT IMPLEMENTED YET
         pass
+    
+    # TODO: ---------------------------------------------------------------*
+    # TODO: ---------------------------------------------------------------*
+    # TODO: ---------------------------------------------------------------*
+    # TODO: ---------------------------------------------------------------*
     
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
