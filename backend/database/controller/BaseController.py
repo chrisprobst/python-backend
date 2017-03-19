@@ -215,7 +215,6 @@ class BaseController(object):
     
     def get_columns_for_table(self, table):
         table_info = self.get_table_info(table)
-        print table_info
         return [e[u"column_name"] for e in table_info]
     
     def verify_columns_for_table(self, table, columns):
@@ -289,9 +288,7 @@ if __name__ == "__main__":
         ctr.insert_into_database(data)
     except:
         print "fehler"
-
-
-
-
-
-    print ctr.select_rows_by_single_value("phone", "contact_id", 115)
+    results = ctr.select_rows_by_single_value("phone", "contact_id", 10)
+    print results[0][0]
+    print results[0]["id"]
+    print ctr.get_columns_for_table("users")
