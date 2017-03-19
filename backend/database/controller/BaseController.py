@@ -44,6 +44,7 @@ class BaseController(object):
     QUERY_INSERT = u"INSERT INTO {table} {columns} VALUES ({placeholders});"
     QUERY_SELECT = u"SELECT * FROM {table} WHERE {column}=?;"
     QUERY_SELECT_COLUMNS = u"SELECT {columns} FROM {table} WHERE {key}=?;"
+    QUERY_GET_TABLE_INFO = u"PRAGMA table_info({table});"
     
     MSG_ERROR_INSERT = u"Insert query \"{query}\" with values ({values}) returned error: {error}"
     MSG_ERROR_SELECT = u"Select query \"{query}\" with values ({values}) returned error: {error}"
@@ -186,6 +187,25 @@ class BaseController(object):
                 error=repr(e)
             ))
             raise e
+    
+    def get_table_info(self, table):
+        query = BaseController.QUERY_GET_TABLE_INFO.format(table=table)
+        self.database.cursor.execute(query)
+        result = self.database.cursor.fetchall()
+        named_result = []
+        for table_info in result:
+            # TODO: figure out the remaining data fields!
+            named_result.append(
+                {
+                    u"id": table_info[0],
+                    u"column_name": table_info[1],
+                    u"column_type": table_info[2],
+                    u"unknown data_1": table_info[3],
+                    u"unknown data_2": table_info[4],
+                    u"unknown data_3": table_info[5]
+                }
+            )
+        return named_result
 
 
 # Simple test
