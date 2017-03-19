@@ -223,6 +223,32 @@ class BaseController(object):
                     col=column,
                     table=table
                 ))
+    
+    def select_columns_by_single_value(self, table, columns, key, value):
+        self.verify_columns_for_table(table, columns)
+        arg_columns = u", ".join(columns)
+        query = BaseController.QUERY_SELECT_COLUMNS.format(
+            columns=arg_columns,
+            table=table,
+            key=key
+        )
+        try:
+            self.database.cursor.execute(query, (value,))
+            results = self.database.cursor.fetchall()
+            if len(results) == 0:
+                self.database.logger.debug(BaseController.MSG_DEBUG_SELECT.format(
+                    query=query,
+                    values=value
+                ))
+            return results
+        except BaseException, e:
+            self.database.logger.error(BaseController.MSG_ERROR_SELECT.format(
+                query=query,
+                values=value,
+                error=repr(e)
+            ))
+            raise e
+        
 
 
 # Simple test
