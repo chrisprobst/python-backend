@@ -7,6 +7,7 @@ class Database(object):
         self.logger = logger
         self.logger.info("Create database connection to: {path}".format(path=path))
         self.connection = sqlite3.connect(path)
+        self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
         self.create_tables()
     
