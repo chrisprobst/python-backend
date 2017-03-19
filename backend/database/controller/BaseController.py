@@ -48,6 +48,7 @@ class BaseController(object):
     
     MSG_ERROR_INSERT = u"Insert query \"{query}\" with values ({values}) returned error: {error}"
     MSG_ERROR_SELECT = u"Select query \"{query}\" with values ({values}) returned error: {error}"
+    MSG_ERROR_VERIFY_COLUMNS = u"Could not verify column {col} in table {table}"
     
     MSG_DEBUG_SELECT = u"Select query \"{query}\" with values {values} did not return any rows"
     
@@ -211,6 +212,17 @@ class BaseController(object):
         table_info = self.get_table_info(table)
         print table_info
         return [e[u"column_name"] for e in table_info]
+    
+    def verify_columns_for_table(self, table, columns):
+        if columns == ("*",):
+            return
+        valid_columns = self.get_columns_for_table(table)
+        for column in columns:
+            if column not in valid_columns:
+                raise ValueError(BaseController.MSG_ERROR_VERIFY_COLUMNS.format(
+                    col=column,
+                    table=table
+                ))
 
 
 # Simple test
