@@ -155,7 +155,7 @@ class BaseController(object):
         if commit:
             self.database.commit()
     
-    def select_data_by_single_value(self, table, column, value):
+    def select_rows_by_single_value(self, table, column, value):
         """
         This method selects all columns from a table with a simple
         equality filter for one filter column. The function call will
@@ -284,9 +284,9 @@ if __name__ == "__main__":
         ctr.insert_into_database(data)
     except:
         print "fehler"
-    print ctr.select_data_by_single_value("phone", "contact_id", 115)
 
 
 
 
 
+    print ctr.select_rows_by_single_value("phone", "contact_id", 115)
