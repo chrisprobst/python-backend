@@ -112,10 +112,10 @@ class BaseController(object):
         """
         for table_name, rows_to_insert in data.iteritems():
             for row in rows_to_insert:
-                self.insert_single_row_in_table(table_name, row, commit=False)
+                self.insert_row_in_table(table_name, row, commit=False)
         self.database.commit()
     
-    def insert_single_row_in_table(self, table_name, row, commit=True):
+    def insert_row_in_table(self, table_name, row, commit=True):
         """
         Given a table name and a row dataset
         
