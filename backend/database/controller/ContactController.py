@@ -1,8 +1,10 @@
 #! /usr/bin/python
 # -*- coding: iso-8859-1 -*-
 
+from backend.database.controller.BaseController import BaseController
 
-class ContactController(object):
+
+class ContactController(BaseController):
     # TODO: Remove 'json' parameters since they are implicit and unuseful
     
     # TODO: Export to BaseController
@@ -57,7 +59,7 @@ class ContactController(object):
     
     # TODO: Database will be passed to BaseController
     def __init__(self, database):
-        self.database = database
+        super(ContactController, self).__init__(database)
     
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
