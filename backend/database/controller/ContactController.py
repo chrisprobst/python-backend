@@ -79,19 +79,19 @@ class ContactController(BaseController):
         :return: (int) The generated contact id for the new contact record
         """
         try:
-            contact_id = self._insert_json_in_table(contact["contact"], "contact")
+            contact_id = self.insert_row_in_table(contact["contact"], "contact", commit=False)
             for mail in contact["mail"]:
                 mail["contact_id"] = contact_id
-                self._insert_json_in_table(mail, "mail")
             for address in contact["address"]:
                 address["contact_id"] = contact_id
-                self._insert_json_in_table(address, "address")
             for phone in contact["phone"]:
                 phone["contact_id"] = contact_id
-                self._insert_json_in_table(phone, "phone")
             for study in contact["study"]:
                 study["contact_id"] = contact_id
-                self._insert_json_in_table(study, "study")
+            self.insert_rows_in_table(contact["mail"], "mail", commit=False)
+            self.insert_rows_in_table(contact["address"], "address", commit=False)
+            self.insert_rows_in_table(contact["address"], "phone", commit=False)
+            self.insert_rows_in_table(contact["study"], "study", commit=False)
             if commit:
                 self.database.commit()
             return contact_id
@@ -139,22 +139,21 @@ class ContactController(BaseController):
         :param contact_id: (int) The contact id to fetch from the database
         :return: (dict) The matching contact structure or an empty dictionary
         """
-        id_filter = "id={id}".format(id=contact_id)
-        contact_id_filter = "contact_id={id}".format(id=contact_id)
-        result_contact = self._select_named_data(["*"], "contact", id_filter)
-        result_mail = self._select_named_data(["*"], "mail", contact_id_filter)
-        result_phone = self._select_named_data(["*"], "phone", contact_id_filter)
-        result_address = self._select_named_data(["*"], "address", contact_id_filter)
-        result_study = self._select_named_data(["*"], "study", contact_id_filter)
+        result_contact = self.select_rows_by_single_value("contact", "id", contact_id)
+        result_mail = self.select_rows_by_single_value("mail", "contact_id", contact_id)
+        result_phone = self.select_rows_by_single_value("phone", "contact_id", contact_id)
+        result_address = self.select_rows_by_single_value("address", "contact_id", contact_id)
+        result_study = self.select_rows_by_single_value("study", "contact_id", contact_id)
         if len(result_contact) != 1:
-            return {}
-        contact = {
-            "contact": result_contact[0],
-            "mail": result_mail,
-            "phone": result_phone,
-            "address": result_address,
-            "study": result_study
-        }
+            contact = {}
+        else:
+            contact = {
+                "contact": result_contact[0],
+                "mail": result_mail,
+                "phone": result_phone,
+                "address": result_address,
+                "study": result_study
+            }
         return contact
     
     def select_contacts_for_ids(self, ids):
