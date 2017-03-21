@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -5,7 +6,7 @@ from passlib.hash import pbkdf2_sha256
 
 from backend.database import Database
 
-db = Database.Database("../../../myDatabase.db")
+db = Database.Database("../../../myDatabase.db", logging.getLogger("add_api_user.py"))
 username = raw_input("Username: ")
 password = raw_input("Password: ")
 print "Generate salt..."
